@@ -24,13 +24,17 @@ export const useBirthdayStore = create<BirthdayStore>((set, get) => ({
   loadBirthdays: async () => {
     set({ isLoading: true, error: null });
     try {
-      const birthdays = await birthdayRepository.findAll();
-      const pendingIds = await getPendingBirthdayIds();
+      // TODO: Replace with actual database call
+      // const birthdays = await birthdayRepository.findAll();
+      // const pendingIds = await getPendingBirthdayIds();
+      
+      // Use mock data for now
+      const { mockBirthdays } = await import('@/data/mockData');
       
       // Add sync status to each birthday
-      const birthdaysWithSync: BirthdayWithSync[] = birthdays.map(birthday => ({
+      const birthdaysWithSync: BirthdayWithSync[] = mockBirthdays.map(birthday => ({
         ...birthday,
-        sync_status: pendingIds.includes(birthday.id) ? 'pending' : 'synced'
+        sync_status: 'synced' as const
       }));
       
       set({ birthdays: birthdaysWithSync, isLoading: false });
