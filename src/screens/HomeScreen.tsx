@@ -102,27 +102,31 @@ export default function HomeScreen() {
       
       {/* Header */}
       <SafeAreaView style={styles.header}>
-        <View style={styles.headerTop}>
-          <Text style={styles.title}>Birthdays</Text>
-          <View style={styles.headerActions}>
-            <TouchableOpacity 
-              style={styles.iconButton}
-              onPress={() => navigation.navigate('Calendar')}
-            >
-              <Ionicons name="calendar-outline" size={24} color={theme.colors.neutral.gray700} />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.iconButton}
-              onPress={() => navigation.navigate('Settings')}
-            >
-              <Ionicons name="person-circle-outline" size={24} color={theme.colors.neutral.gray700} />
-            </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <View style={styles.headerTop}>
+            <Text style={styles.title}>Birthdays</Text>
+            <View style={styles.headerActions}>
+              <TouchableOpacity 
+                style={styles.iconButton}
+                onPress={() => navigation.navigate('Calendar')}
+              >
+                <Ionicons name="calendar-outline" size={24} color={theme.colors.neutral.gray700} />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.iconButton}
+                onPress={() => navigation.navigate('Settings')}
+              >
+                <Ionicons name="person-circle-outline" size={24} color={theme.colors.neutral.gray700} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          
+          <View style={styles.quickStats}>
+            <Text style={styles.statItem}>
+              <Text style={styles.statNumber}>{thisWeekCount || 3}</Text> this week
+            </Text>
           </View>
         </View>
-        
-        <Text style={styles.weekBadge}>
-          <Text style={styles.weekBadgeNumber}>{thisWeekCount || 3}</Text> this week
-        </Text>
       </SafeAreaView>
       
       {/* Birthday List */}
@@ -214,61 +218,67 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fafbfc',
   },
   header: {
-    backgroundColor: theme.colors.background.primary,
-    paddingHorizontal: theme.componentSpacing.screen.paddingHorizontal,
-    paddingBottom: theme.spacing.lg,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+  },
+  headerContent: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 20,
   },
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: theme.spacing.sm,
-    marginBottom: theme.spacing.xs,
+    marginBottom: 16,
   },
   title: {
-    fontSize: 36,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.primary.main,
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#0ea5e9',
     letterSpacing: -0.5,
   },
   headerActions: {
     flexDirection: 'row',
-    gap: theme.spacing.md,
+    gap: 12,
   },
   iconButton: {
-    width: 44,
-    height: 44,
-    backgroundColor: '#f0f0f0',
-    borderRadius: theme.borderRadius.medium,
+    width: 40,
+    height: 40,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  weekBadge: {
-    fontSize: 18,
-    color: '#6B7280',
-    marginTop: theme.spacing.sm,
-    paddingLeft: 2,
+  quickStats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  weekBadgeNumber: {
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.primary.main,
-    fontSize: 18,
+  statItem: {
+    fontSize: 14,
+    color: '#64748b',
+  },
+  statNumber: {
+    fontWeight: '600',
+    color: '#0ea5e9',
+    fontSize: 14,
   },
   content: {
     flex: 1,
-    paddingTop: theme.spacing.md,
   },
   sectionHeader: {
-    fontSize: 15,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: '#6B7280',
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#94a3b8',
     letterSpacing: 0.5,
-    paddingHorizontal: theme.componentSpacing.screen.paddingHorizontal,
-    paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.md,
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 12,
   },
   emptyState: {
     flex: 1,
@@ -292,7 +302,7 @@ const styles = StyleSheet.create({
     right: 20,
     width: 64,
     height: 64,
-    backgroundColor: theme.colors.primary.main,
+    backgroundColor: '#0ea5e9',
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
