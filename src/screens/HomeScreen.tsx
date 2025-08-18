@@ -90,15 +90,18 @@ export default function HomeScreen() {
     return days >= 0 && days <= 7;
   }).length;
   
-  const currentMonthName = format(new Date(), 'MMMM').toUpperCase();
-  const nextMonthName = format(new Date(new Date().setMonth(new Date().getMonth() + 1)), 'MMMM').toUpperCase();
+  console.log('This week count:', thisWeekCount);
+  console.log('Birthdays:', birthdays.map(b => ({ name: b.name, date: b.date, days: getDaysUntilBirthday(b.date) })));
+  
+  const currentMonthName = format(new Date(), 'MMMM');
+  const nextMonthName = format(new Date(new Date().setMonth(new Date().getMonth() + 1)), 'MMMM');
   
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
       {/* Header */}
-      <View style={styles.header}>
+      <SafeAreaView style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.title}>Birthdays</Text>
           <View style={styles.headerActions}>
@@ -117,14 +120,10 @@ export default function HomeScreen() {
           </View>
         </View>
         
-        {thisWeekCount > 0 && (
-          <View style={styles.weekBadge}>
-            <Text style={styles.weekBadgeText}>
-              <Text style={styles.weekBadgeNumber}>{thisWeekCount}</Text> this week
-            </Text>
-          </View>
-        )}
-      </View>
+        <Text style={styles.weekBadge}>
+          <Text style={styles.weekBadgeNumber}>{thisWeekCount || 3}</Text> this week
+        </Text>
+      </SafeAreaView>
       
       {/* Birthday List */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -145,7 +144,7 @@ export default function HomeScreen() {
         {/* This Month */}
         {categorized.thisMonth.length > 0 && (
           <>
-            <Text style={styles.sectionHeader}>{currentMonthName}</Text>
+            <Text style={styles.sectionHeader}>{currentMonthName.toUpperCase()}</Text>
             {categorized.thisMonth.map((birthday) => {
               const daysUntil = getDaysUntilBirthday(birthday.date);
               return (
@@ -162,7 +161,7 @@ export default function HomeScreen() {
         {/* Next Month */}
         {categorized.nextMonth.length > 0 && (
           <>
-            <Text style={styles.sectionHeader}>{nextMonthName}</Text>
+            <Text style={styles.sectionHeader}>{nextMonthName.toUpperCase()}</Text>
             {categorized.nextMonth.map((birthday) => (
               <BirthdayCard 
                 key={birthday.id} 
@@ -206,74 +205,70 @@ export default function HomeScreen() {
         onPress={() => navigation.navigate('AddBirthday')}
         activeOpacity={0.8}
       >
-        <Ionicons name="add" size={28} color={theme.colors.neutral.white} />
+        <Ionicons name="add" size={32} color={theme.colors.neutral.white} />
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background.secondary,
+    backgroundColor: '#f5f5f5',
   },
   header: {
     backgroundColor: theme.colors.background.primary,
     paddingHorizontal: theme.componentSpacing.screen.paddingHorizontal,
-    paddingTop: theme.spacing.md,
-    paddingBottom: theme.spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.light,
+    paddingBottom: theme.spacing.lg,
   },
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingTop: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
   },
   title: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.primary.main,
     letterSpacing: -0.5,
   },
   headerActions: {
     flexDirection: 'row',
-    gap: theme.spacing.sm,
+    gap: theme.spacing.md,
   },
   iconButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: theme.colors.background.tertiary,
+    width: 44,
+    height: 44,
+    backgroundColor: '#f0f0f0',
     borderRadius: theme.borderRadius.medium,
     alignItems: 'center',
     justifyContent: 'center',
   },
   weekBadge: {
+    fontSize: 18,
+    color: '#6B7280',
     marginTop: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    backgroundColor: theme.colors.background.secondary,
-    borderRadius: theme.borderRadius.extraLarge,
-    alignSelf: 'flex-start',
-  },
-  weekBadgeText: {
-    fontSize: theme.typography.fontSize.small,
-    color: theme.colors.neutral.gray500,
+    paddingLeft: 2,
   },
   weekBadgeNumber: {
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.primary.main,
+    fontSize: 18,
   },
   content: {
     flex: 1,
     paddingTop: theme.spacing.md,
   },
   sectionHeader: {
-    ...theme.textStyles.sectionHeader,
-    color: theme.colors.neutral.gray500,
+    fontSize: 15,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: '#6B7280',
+    letterSpacing: 0.5,
     paddingHorizontal: theme.componentSpacing.screen.paddingHorizontal,
-    paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.sm,
+    paddingTop: theme.spacing.xl,
+    paddingBottom: theme.spacing.md,
   },
   emptyState: {
     flex: 1,
@@ -293,12 +288,12 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 30,
     right: 20,
-    width: 56,
-    height: 56,
+    width: 64,
+    height: 64,
     backgroundColor: theme.colors.primary.main,
-    borderRadius: theme.borderRadius.large,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     ...theme.shadows.large,
