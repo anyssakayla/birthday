@@ -95,7 +95,7 @@ export default function AppNavigator() {
           name="Settings" 
           component={SettingsScreen}
           options={{
-            title: 'Settings',
+            headerShown: false,
           }}
         />
         

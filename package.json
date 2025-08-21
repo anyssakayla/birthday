@@ -1,9 +1,10 @@
 {
   "name": "birthday",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
+    "dev": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"
@@ -31,12 +32,14 @@
     "@react-native-community/netinfo": "11.4.1",
     "react-native-gesture-handler": "~2.24.0",
     "expo-linear-gradient": "~14.1.5",
-    "@expo/vector-icons": "^14.1.0"
+    "@expo/vector-icons": "^14.1.0",
+    "expo-font": "~13.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "babel-plugin-module-resolver": "^5.0.2"
   },
   "private": true
 }
