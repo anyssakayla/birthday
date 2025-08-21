@@ -5,7 +5,7 @@ import { getAvatarGradient, theme } from '@/theme';
 
 interface AvatarProps {
   name: string;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xlarge';
   imageUrl?: string;
   customColors?: string[];
   style?: any;
@@ -15,12 +15,14 @@ const sizeMap = {
   small: 32,
   medium: 48,
   large: 80,
+  xlarge: 120,
 };
 
 const fontSizeMap = {
   small: 14,
   medium: 18,
   large: 32,
+  xlarge: 48,
 };
 
 export default function Avatar({ 

@@ -126,10 +126,16 @@ export default function BirthdayCard({ birthday, variant, onPress }: BirthdayCar
           
           {variant === 'upcoming' && (
             <>
-              <TouchableOpacity style={[styles.button, styles.primaryButton]}>
+              <TouchableOpacity 
+                style={[styles.button, styles.primaryButton]}
+                onPress={() => navigation.navigate('GiftPlanning', { birthdayId: birthday.id })}
+              >
                 <Text style={styles.primaryButtonText}>Plan Gift</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, styles.secondaryButton]}>
+              <TouchableOpacity 
+                style={[styles.button, styles.secondaryButton]}
+                onPress={() => navigation.navigate('AddNote', { birthdayId: birthday.id })}
+              >
                 <Text style={styles.secondaryButtonText}>Add Note</Text>
               </TouchableOpacity>
             </>
