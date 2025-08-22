@@ -20,7 +20,7 @@ import {
 export type RootStackParamList = {
   Home: undefined;
   AddBirthday: undefined;
-  BirthdayDetail: { birthdayId: string };
+  BirthdayDetail: { birthdayId: string; initialTab?: 'notes' | 'gifts' | 'messages' };
   EditContact: { birthdayId: string };
   EditBirthday: { birthdayId: string };
   Settings: undefined;
@@ -87,7 +87,7 @@ export default function AppNavigator() {
           name="EditContact" 
           component={EditContactScreen}
           options={{
-            title: 'Edit Contact',
+            headerShown: false,
             presentation: 'modal',
           }}
         />

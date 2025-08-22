@@ -65,11 +65,8 @@ export default function BirthdayCard({ birthday, variant, onPress }: BirthdayCar
     switch (variant) {
       case 'today':
         return `Turning ${age} today`;
-      case 'upcoming':
-        const daysUntil = Math.ceil((birthDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-        return `Birthday in ${daysUntil} days • Turning ${age}`;
       default:
-        return `Birthday next month • Turning ${age}`;
+        return `Turning ${age}`;
     }
   };
   
@@ -133,13 +130,13 @@ export default function BirthdayCard({ birthday, variant, onPress }: BirthdayCar
             <>
               <TouchableOpacity 
                 style={[styles.button, styles.primaryButton]}
-                onPress={() => navigation.navigate('GiftPlanning', { birthdayId: birthday.id })}
+                onPress={() => navigation.navigate('BirthdayDetail', { birthdayId: birthday.id, initialTab: 'gifts' })}
               >
                 <Text style={styles.primaryButtonText}>Plan Gift</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.button, styles.secondaryButton]}
-                onPress={() => navigation.navigate('AddNote', { birthdayId: birthday.id })}
+                onPress={() => navigation.navigate('BirthdayDetail', { birthdayId: birthday.id, initialTab: 'notes' })}
               >
                 <Text style={styles.secondaryButtonText}>Add Note</Text>
               </TouchableOpacity>

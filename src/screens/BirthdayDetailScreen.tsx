@@ -30,10 +30,10 @@ type TabType = 'notes' | 'gifts' | 'messages';
 export default function BirthdayDetailScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RoutePropType>();
-  const { birthdayId } = route.params;
+  const { birthdayId, initialTab } = route.params;
   
   const { birthdays, updateBirthday } = useBirthdayStore();
-  const [activeTab, setActiveTab] = useState<TabType>('notes');
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab || 'notes');
   
   // Get birthday directly from store instead of using local state
   const birthday = birthdays.find(b => b.id === birthdayId);

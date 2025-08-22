@@ -34,9 +34,16 @@ export default function NotesTab({
   const [localNotes, setLocalNotes] = useState(notes);
   const [showSaveIndicator, setShowSaveIndicator] = useState(false);
   const [keyboardShown, setKeyboardShown] = useState(false);
+  const [isGiftContainerExpanded, setIsGiftContainerExpanded] = useState(true);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [showGiftContainer, setShowGiftContainer] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
+  
   const saveIndicatorOpacity = useRef(new Animated.Value(0)).current;
   const buttonTranslateY = useRef(new Animated.Value(0)).current;
   const doneButtonOpacity = useRef(new Animated.Value(0)).current;
+  const giftContainerHeight = useRef(new Animated.Value(1)).current;
+  const giftContainerOpacity = useRef(new Animated.Value(1)).current;
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
   
   useEffect(() => {
@@ -44,6 +51,8 @@ export default function NotesTab({
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       () => {
         setKeyboardShown(true);
+        setIsTyping(true);
+        // Hide gift container when keyboard shows
         Animated.parallel([
           Animated.timing(buttonTranslateY, {
             toValue: 200,
@@ -55,7 +64,14 @@ export default function NotesTab({
             duration: 250,
             useNativeDriver: true,
           }),
-        ]).start();
+          Animated.timing(giftContainerOpacity, {
+            toValue: 0,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          setShowGiftContainer(false);
+        });
       }
     );
     
@@ -63,6 +79,12 @@ export default function NotesTab({
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => {
         setKeyboardShown(false);
+        setIsTyping(false);
+        // Show gift container again after keyboard hides, but in collapsed state
+        setShowGiftContainer(true);
+        setIsGiftContainerExpanded(false);
+        setHasUserInteracted(true);
+        
         Animated.parallel([
           Animated.timing(buttonTranslateY, {
             toValue: 0,
@@ -72,6 +94,12 @@ export default function NotesTab({
           Animated.timing(doneButtonOpacity, {
             toValue: 0,
             duration: 250,
+            useNativeDriver: true,
+          }),
+          Animated.timing(giftContainerOpacity, {
+            toValue: 1,
+            duration: 250,
+            delay: 100,
             useNativeDriver: true,
           }),
         ]).start();
@@ -128,6 +156,43 @@ export default function NotesTab({
   
   const firstName = personName.split(' ')[0];
   
+  const handleScroll = () => {
+    if (!hasUserInteracted && !isTyping) {
+      setHasUserInteracted(true);
+      setIsGiftContainerExpanded(false);
+      
+      // Animate collapse
+      Animated.timing(giftContainerHeight, {
+        toValue: 0.3,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    }
+  };
+  
+  const toggleGiftContainer = () => {
+    const newExpanded = !isGiftContainerExpanded;
+    setIsGiftContainerExpanded(newExpanded);
+    
+    // Animate height change
+    Animated.timing(giftContainerHeight, {
+      toValue: newExpanded ? 1 : 0.3,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
+  
+  // Show gift container when not typing and it was hidden
+  useEffect(() => {
+    if (showGiftContainer && !isTyping && !keyboardShown) {
+      Animated.timing(giftContainerOpacity, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [showGiftContainer, isTyping, keyboardShown]);
+  
   return (
     <View style={styles.container}>
       <View style={styles.notesContainer}>
@@ -178,6 +243,8 @@ export default function NotesTab({
           contentContainerStyle={styles.notesScrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={true}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
         >
           {/* Create lined paper effect */}
           {Array.from({ length: 30 }).map((_, index) => (
@@ -202,46 +269,78 @@ export default function NotesTab({
         </ScrollView>
       </View>
       
-      <Animated.View 
-        style={[
-          styles.giftSection,
-          { transform: [{ translateY: buttonTranslateY }] }
-        ]}
-      >
-        <View style={styles.giftContainer}>
-          <Text style={styles.giftUrgencyHeader}>
-            Need help finding {firstName} a gift?
-          </Text>
-          <Text style={styles.giftDescription}>
-            We've got you covered. Get personalized suggestions based on your notes.
-          </Text>
-          
-          <TouchableOpacity onPress={onFindGifts} activeOpacity={0.9}>
-            <LinearGradient
-              colors={['#667eea', '#764ba2']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.primaryButton}
-            >
-              <Text style={styles.primaryButtonText}>Generate Gift Ideas</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          
-          <View style={styles.orDivider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.orText}>or</Text>
-            <View style={styles.dividerLine} />
+      {showGiftContainer && !isTyping && (
+        <Animated.View 
+          style={[
+            styles.giftSection,
+            { 
+              transform: [{ translateY: buttonTranslateY }],
+              opacity: giftContainerOpacity,
+            }
+          ]}
+        >
+          <View style={styles.giftContainer}>
+            {/* Collapsed state */}
+            {!isGiftContainerExpanded && (
+              <TouchableOpacity 
+                style={styles.collapsedContainer}
+                onPress={toggleGiftContainer}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.collapsedText}>
+                  Need help finding {firstName} a gift?
+                </Text>
+                <Ionicons name="chevron-up" size={20} color="#667eea" />
+              </TouchableOpacity>
+            )}
+            
+            {/* Expanded state */}
+            {isGiftContainerExpanded && (
+              <>
+                <TouchableOpacity 
+                  style={styles.expandedHeader}
+                  onPress={toggleGiftContainer}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.giftUrgencyHeader}>
+                    Need help finding {firstName} a gift?
+                  </Text>
+                  <Ionicons name="chevron-down" size={20} color="#667eea" />
+                </TouchableOpacity>
+                
+                <Text style={styles.giftDescription}>
+                  We've got you covered. Get personalized suggestions based on your notes.
+                </Text>
+                
+                <TouchableOpacity onPress={onFindGifts} activeOpacity={0.9}>
+                  <LinearGradient
+                    colors={['#667eea', '#764ba2']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.primaryButton}
+                  >
+                    <Text style={styles.primaryButtonText}>Generate Gift Ideas</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+                
+                <View style={styles.orDivider}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.orText}>or</Text>
+                  <View style={styles.dividerLine} />
+                </View>
+                
+                <TouchableOpacity 
+                  onPress={() => console.log('Gift card option')} 
+                  activeOpacity={0.8}
+                  style={styles.secondaryButton}
+                >
+                  <Text style={styles.secondaryButtonText}>Quick Option: Send a Gift Card</Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
-          
-          <TouchableOpacity 
-            onPress={() => console.log('Gift card option')} 
-            activeOpacity={0.8}
-            style={styles.secondaryButton}
-          >
-            <Text style={styles.secondaryButtonText}>Quick Option: Send a Gift Card</Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -258,7 +357,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   headerSection: {
-    marginBottom: 20,
+    marginBottom: 8,
   },
   headerTitle: {
     fontSize: 24,
@@ -409,5 +508,22 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#667eea',
     textAlign: 'center',
+  },
+  collapsedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+  },
+  collapsedText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1c1c1e',
+  },
+  expandedHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
 });
