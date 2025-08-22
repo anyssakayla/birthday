@@ -93,10 +93,9 @@ export default function NotesTab({
       clearTimeout(saveTimeoutRef.current);
     }
     
-    // Set new timeout for auto-save
+    // Set new timeout for auto-save (without visual indicator)
     saveTimeoutRef.current = setTimeout(() => {
       onSaveNotes();
-      showSaveAnimation();
     }, 1000);
   };
   
@@ -114,13 +113,17 @@ export default function NotesTab({
         duration: 300,
         useNativeDriver: true,
       }),
-    ]).start(() => {
+    ]).start();
+    
+    // Use setTimeout instead of animation callback to avoid React warning
+    setTimeout(() => {
       setShowSaveIndicator(false);
-    });
+    }, 2600);
   };
   
   const handleDonePress = () => {
     Keyboard.dismiss();
+    showSaveAnimation();
   };
   
   const firstName = personName.split(' ')[0];
@@ -128,6 +131,13 @@ export default function NotesTab({
   return (
     <View style={styles.container}>
       <View style={styles.notesContainer}>
+        <View style={styles.headerSection}>
+          <Text style={styles.headerTitle}>Remember</Text>
+          <Text style={styles.headerSubtext}>
+            Add notes to remember things about {firstName} to help you find thoughtful gifts
+          </Text>
+        </View>
+        
         {showSaveIndicator && (
           <Animated.View 
             style={[
@@ -173,7 +183,7 @@ export default function NotesTab({
               key={index}
               style={[
                 styles.paperLine,
-                { top: 8 + (index * 28) }
+                { top: 22 + (index * 28) }
               ]}
             />
           ))}
@@ -224,6 +234,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     position: 'relative',
   },
+  headerSection: {
+    marginBottom: 20,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1c1c1e',
+    marginBottom: 6,
+  },
+  headerSubtext: {
+    fontSize: 14,
+    color: '#8e8e93',
+    lineHeight: 20,
+  },
   saveIndicator: {
     position: 'absolute',
     top: 20,
@@ -245,7 +269,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   notesScrollContent: {
-    paddingTop: 8,
+    paddingTop: 18,
     minHeight: '100%',
   },
   paperLine: {
@@ -261,6 +285,7 @@ const styles = StyleSheet.create({
     color: '#1c1c1e',
     padding: 0,
     paddingHorizontal: 4,
+    paddingTop: Platform.OS === 'ios' ? 2 : 0,
     textAlignVertical: 'top',
     minHeight: 500,
   },

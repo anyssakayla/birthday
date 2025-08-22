@@ -13,6 +13,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { format } from 'date-fns';
 
 import { useBirthdayStore } from '@/stores';
 import { RootStackParamList } from '@/navigation/AppNavigator';
@@ -59,6 +60,32 @@ export default function BirthdayDetailScreen() {
   
   const handleFindGifts = () => {
     setActiveTab('gifts');
+  };
+  
+  const calculateAge = (birthDate: string) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    const currentYear = today.getFullYear();
+    const birthYear = birth.getFullYear();
+    
+    // Create birthday this year
+    const birthdayThisYear = new Date(currentYear, birth.getMonth(), birth.getDate());
+    
+    // Calculate age they're turning
+    let age = currentYear - birthYear;
+    
+    // If birthday hasn't happened yet this year, they're turning the age
+    // If it already happened, they already turned that age
+    if (birthdayThisYear > today) {
+      return age;
+    } else {
+      return age + 1; // Next birthday they'll turn this age
+    }
+  };
+  
+  const formatBirthdayDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return format(date, 'MMMM do'); // e.g., "August 17th"
   };
   
   const renderTabContent = () => {
@@ -112,9 +139,7 @@ export default function BirthdayDetailScreen() {
               <Ionicons name="arrow-back" size={28} color="#ffffff" />
             </TouchableOpacity>
             
-            <Text style={styles.headerTitle}>{birthday.name}</Text>
-            
-            <View style={{ width: 28 }} />
+            <View style={{ flex: 1 }} />
           </View>
           
           <View style={styles.profileSection}>
@@ -125,7 +150,10 @@ export default function BirthdayDetailScreen() {
             </View>
             <View style={styles.profileInfo}>
               <Text style={styles.profileName}>{birthday.name}</Text>
-              <Text style={styles.profileSubtext}>Personalized Suggestions</Text>
+              <View style={styles.birthdayInfo}>
+                <Text style={styles.profileSubtext}>{formatBirthdayDate(birthday.date)}</Text>
+                <Text style={styles.ageText}>• Turning {calculateAge(birthday.date)}</Text>
+              </View>
             </View>
           </View>
         </SafeAreaView>
@@ -224,6 +252,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   profileSubtext: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
+  },
+  birthdayInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  ageText: {
     fontSize: 16,
     color: 'rgba(255,255,255,0.9)',
   },
