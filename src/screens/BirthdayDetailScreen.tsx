@@ -17,7 +17,6 @@ import { format } from 'date-fns';
 
 import { useBirthdayStore } from '@/stores';
 import { RootStackParamList } from '@/navigation/AppNavigator';
-import { BirthdayWithSync } from '@/types';
 import NotesTab from '@components/tabs/NotesTab';
 import GiftsTab from '@components/tabs/GiftsTab';
 import MessagesTab from '@components/tabs/MessagesTab';
@@ -34,17 +33,16 @@ export default function BirthdayDetailScreen() {
   const { birthdayId } = route.params;
   
   const { birthdays, updateBirthday } = useBirthdayStore();
-  const [birthday, setBirthday] = useState<BirthdayWithSync | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('notes');
   
+  // Get birthday directly from store instead of using local state
+  const birthday = birthdays.find(b => b.id === birthdayId);
+  
   useEffect(() => {
-    const found = birthdays.find(b => b.id === birthdayId);
-    if (found) {
-      setBirthday(found);
-    } else {
+    if (!birthday) {
       navigation.goBack();
     }
-  }, [birthdayId, birthdays]);
+  }, [birthday, navigation]);
   
   if (!birthday) {
     return null;

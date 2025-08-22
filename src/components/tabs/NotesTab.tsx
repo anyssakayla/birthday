@@ -131,12 +131,14 @@ export default function NotesTab({
   return (
     <View style={styles.container}>
       <View style={styles.notesContainer}>
-        <View style={styles.headerSection}>
-          <Text style={styles.headerTitle}>Remember</Text>
-          <Text style={styles.headerSubtext}>
-            Add notes to remember things about {firstName} to help you find thoughtful gifts
-          </Text>
-        </View>
+        {!localNotes.trim() && (
+          <View style={styles.headerSection}>
+            <Text style={styles.headerTitle}>Remember</Text>
+            <Text style={styles.headerSubtext}>
+              Add notes to remember things about {firstName} to help you find thoughtful gifts
+            </Text>
+          </View>
+        )}
         
         {showSaveIndicator && (
           <Animated.View 
