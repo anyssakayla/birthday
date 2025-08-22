@@ -34,6 +34,8 @@ export default function BirthdayDetailScreen() {
   
   const { birthdays, updateBirthday } = useBirthdayStore();
   const [activeTab, setActiveTab] = useState<TabType>(initialTab || 'notes');
+  const [isGiftContainerExpanded, setIsGiftContainerExpanded] = useState(true);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   
   // Get birthday directly from store instead of using local state
   const birthday = birthdays.find(b => b.id === birthdayId);
@@ -97,6 +99,10 @@ export default function BirthdayDetailScreen() {
             onSaveNotes={handleSaveNotes}
             onFindGifts={handleFindGifts}
             personName={birthday.name}
+            isGiftContainerExpanded={isGiftContainerExpanded}
+            setIsGiftContainerExpanded={setIsGiftContainerExpanded}
+            hasUserInteracted={hasUserInteracted}
+            setHasUserInteracted={setHasUserInteracted}
           />
         );
       case 'gifts':
@@ -179,7 +185,14 @@ export default function BirthdayDetailScreen() {
           
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'gifts' && styles.tabActive]}
-            onPress={() => setActiveTab('gifts')}
+            onPress={() => {
+              setActiveTab('gifts');
+              // Auto-collapse gift container when switching away from notes
+              if (activeTab === 'notes') {
+                setHasUserInteracted(true);
+                setIsGiftContainerExpanded(false);
+              }
+            }}
           >
             <Text style={[styles.tabText, activeTab === 'gifts' && styles.tabTextActive]}>
               Gifts
@@ -188,7 +201,14 @@ export default function BirthdayDetailScreen() {
           
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'messages' && styles.tabActive]}
-            onPress={() => setActiveTab('messages')}
+            onPress={() => {
+              setActiveTab('messages');
+              // Auto-collapse gift container when switching away from notes
+              if (activeTab === 'notes') {
+                setHasUserInteracted(true);
+                setIsGiftContainerExpanded(false);
+              }
+            }}
           >
             <Text style={[styles.tabText, activeTab === 'messages' && styles.tabTextActive]}>
               Messages

@@ -20,6 +20,10 @@ interface NotesTabProps {
   onSaveNotes: () => void;
   onFindGifts: () => void;
   personName: string;
+  isGiftContainerExpanded: boolean;
+  setIsGiftContainerExpanded: (expanded: boolean) => void;
+  hasUserInteracted: boolean;
+  setHasUserInteracted: (interacted: boolean) => void;
 }
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -29,13 +33,15 @@ export default function NotesTab({
   onNotesChange, 
   onSaveNotes, 
   onFindGifts,
-  personName 
+  personName,
+  isGiftContainerExpanded,
+  setIsGiftContainerExpanded,
+  hasUserInteracted,
+  setHasUserInteracted
 }: NotesTabProps) {
   const [localNotes, setLocalNotes] = useState(notes);
   const [showSaveIndicator, setShowSaveIndicator] = useState(false);
   const [keyboardShown, setKeyboardShown] = useState(false);
-  const [isGiftContainerExpanded, setIsGiftContainerExpanded] = useState(true);
-  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [showGiftContainer, setShowGiftContainer] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   
@@ -279,7 +285,7 @@ export default function NotesTab({
             }
           ]}
         >
-          <View style={styles.giftContainer}>
+          <View style={[styles.giftContainer, !isGiftContainerExpanded && styles.giftContainerCollapsed]}>
             {/* Collapsed state */}
             {!isGiftContainerExpanded && (
               <TouchableOpacity 
@@ -513,7 +519,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
+    paddingVertical: 8,
   },
   collapsedText: {
     fontSize: 16,
@@ -525,5 +531,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 8,
+  },
+  giftContainerCollapsed: {
+    padding: 12,
   },
 });

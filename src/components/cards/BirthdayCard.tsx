@@ -33,6 +33,22 @@ const calculateAge = (birthDate: string): number => {
   return age;
 };
 
+// Helper to get days until birthday
+const getDaysUntilBirthday = (date: string): number => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const birthday = new Date(date);
+  birthday.setFullYear(today.getFullYear());
+  birthday.setHours(0, 0, 0, 0);
+  
+  if (birthday < today) {
+    birthday.setFullYear(today.getFullYear() + 1);
+  }
+  
+  const diffTime = birthday.getTime() - today.getTime();
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
+
 export default function BirthdayCard({ birthday, variant, onPress }: BirthdayCardProps) {
   const navigation = useNavigation<NavigationProp>();
   
@@ -47,6 +63,7 @@ export default function BirthdayCard({ birthday, variant, onPress }: BirthdayCar
   const age = calculateAge(birthday.date);
   const birthDate = new Date(birthday.date);
   const formattedDate = format(birthDate, 'MMM d');
+  const daysUntil = getDaysUntilBirthday(birthday.date);
   
   // Get border color based on variant
   const getBorderColor = () => {
@@ -81,8 +98,16 @@ export default function BirthdayCard({ birthday, variant, onPress }: BirthdayCar
     >
       {/* Birthday Badge */}
       <View style={styles.birthdayBadge}>
-        <Ionicons name="gift-outline" size={16} color="#0891b2" />
-        <Text style={styles.badgeText}>{formattedDate}</Text>
+        <View style={styles.dateSection}>
+          <Text style={styles.cakeIcon}>🎂</Text>
+          <Text style={styles.badgeText}>{formattedDate}</Text>
+        </View>
+        <View style={styles.dividerVertical} />
+        <View style={styles.countdownSection}>
+          <Text style={styles.countdownText}>
+            {daysUntil === 0 ? 'Today' : `${daysUntil} ${daysUntil === 1 ? 'day' : 'days'}`}
+          </Text>
+        </View>
       </View>
       
       {/* Card Content */}
@@ -174,20 +199,39 @@ const styles = StyleSheet.create({
     right: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     backgroundColor: '#f0f9ff',
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#0891b2',
+    borderColor: '#e0f2fe',
   },
-  cakeEmoji: {
-    fontSize: 16,
+  dateSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  cakeIcon: {
+    fontSize: 14,
   },
   badgeText: {
     fontSize: 13,
     fontWeight: '500',
+    color: '#0891b2',
+  },
+  dividerVertical: {
+    width: 1,
+    height: 16,
+    backgroundColor: '#cbd5e1',
+    marginHorizontal: 10,
+  },
+  countdownSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  countdownText: {
+    fontSize: 13,
+    fontWeight: '600',
     color: '#0891b2',
   },
   content: {
