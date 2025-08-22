@@ -9,6 +9,7 @@ import Avatar from '@components/ui/Avatar';
 import { theme } from '@/theme';
 import { Birthday } from '@/types';
 import { RootStackParamList } from '@/navigation/AppNavigator';
+import { getThemeColor } from '@/utils/themeColors';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -83,14 +84,18 @@ export default function BirthdayCard({ birthday, variant, onPress }: BirthdayCar
     >
       {/* Birthday Badge */}
       <View style={styles.birthdayBadge}>
-        <Text style={styles.cakeEmoji}>🎂</Text>
+        <Ionicons name="gift-outline" size={16} color="#0891b2" />
         <Text style={styles.badgeText}>{formattedDate}</Text>
       </View>
       
       {/* Card Content */}
       <View style={styles.content}>
         <View style={styles.header}>
-          <Avatar name={birthday.name} size="medium" />
+          <Avatar 
+            name={birthday.name} 
+            size="medium" 
+            customColors={getThemeColor(birthday.metadata?.themeColorId).gradient}
+          />
           <View style={styles.info}>
             <Text style={styles.name}>{birthday.name}</Text>
             <Text style={styles.meta}>{getAgeText()}</Text>
@@ -175,18 +180,18 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: theme.colors.primary.subtle,
-    borderRadius: theme.borderRadius.large,
+    backgroundColor: '#f0f9ff',
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: theme.colors.primary.main,
+    borderColor: '#0891b2',
   },
   cakeEmoji: {
     fontSize: 16,
   },
   badgeText: {
-    fontSize: theme.typography.fontSize.small,
-    fontWeight: theme.typography.fontWeight.medium,
-    color: theme.colors.primary.main,
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#0891b2',
   },
   content: {
     padding: theme.componentSpacing.card.padding,

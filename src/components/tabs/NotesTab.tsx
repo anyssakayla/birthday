@@ -202,22 +202,43 @@ export default function NotesTab({
       
       <Animated.View 
         style={[
-          styles.findGiftsButton,
+          styles.giftSection,
           { transform: [{ translateY: buttonTranslateY }] }
         ]}
       >
-        <TouchableOpacity onPress={onFindGifts} activeOpacity={0.9}>
-          <LinearGradient
-            colors={['#667eea', '#764ba2']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.button}
+        <View style={styles.giftContainer}>
+          <Text style={styles.giftUrgencyHeader}>
+            Need help finding {firstName} a gift?
+          </Text>
+          <Text style={styles.giftDescription}>
+            We've got you covered. Get personalized suggestions based on your notes.
+          </Text>
+          
+          <TouchableOpacity onPress={onFindGifts} activeOpacity={0.9}>
+            <LinearGradient
+              colors={['#667eea', '#764ba2']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.primaryButton}
+            >
+              <Text style={styles.primaryButtonText}>Generate Gift Ideas</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          
+          <View style={styles.orDivider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.orText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+          
+          <TouchableOpacity 
+            onPress={() => console.log('Gift card option')} 
+            activeOpacity={0.8}
+            style={styles.secondaryButton}
           >
-            <Text style={styles.giftIcon}>🎁</Text>
-            <Text style={styles.buttonText}>Find Gifts Using Notes</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-        <Text style={styles.privacyNote}>Your notes are private and stored locally</Text>
+            <Text style={styles.secondaryButtonText}>Quick Option: Send a Gift Card</Text>
+          </TouchableOpacity>
+        </View>
       </Animated.View>
     </View>
   );
@@ -310,7 +331,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  findGiftsButton: {
+  giftSection: {
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -319,34 +340,72 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e5e5e7',
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+    paddingTop: 24,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
   },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
+  giftContainer: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: '#e5e5e7',
+  },
+  giftUrgencyHeader: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1c1c1e',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  giftDescription: {
+    fontSize: 14,
+    color: '#6c757d',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  primaryButton: {
     paddingVertical: 16,
     borderRadius: 12,
     shadowColor: '#667eea',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 15,
-    elevation: 6,
+    shadowRadius: 10,
+    elevation: 5,
+    marginBottom: 16,
   },
-  giftIcon: {
-    fontSize: 20,
-  },
-  buttonText: {
+  primaryButtonText: {
     fontSize: 17,
     fontWeight: '600',
     color: '#ffffff',
-  },
-  privacyNote: {
     textAlign: 'center',
-    fontSize: 12,
+  },
+  orDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e5e5e7',
+  },
+  orText: {
+    fontSize: 14,
     color: '#8e8e93',
-    marginTop: 8,
+    marginHorizontal: 16,
+  },
+  secondaryButton: {
+    backgroundColor: '#ffffff',
+    paddingVertical: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e5e7',
+  },
+  secondaryButtonText: {
+    fontSize: 17,
+    fontWeight: '500',
+    color: '#667eea',
+    textAlign: 'center',
   },
 });

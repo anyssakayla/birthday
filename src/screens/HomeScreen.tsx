@@ -122,9 +122,11 @@ export default function HomeScreen() {
           </View>
           
           <View style={styles.quickStats}>
-            <Text style={styles.statItem}>
-              <Text style={styles.statNumber}>{thisWeekCount || 3}</Text> this week
-            </Text>
+            <View style={styles.statBadge}>
+              <Text style={styles.statItem}>
+                <Text style={styles.statNumber}>{thisWeekCount}</Text> this week
+              </Text>
+            </View>
           </View>
         </View>
       </SafeAreaView>
@@ -259,13 +261,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  statBadge: {
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
   statItem: {
     fontSize: 14,
     color: '#64748b',
   },
   statNumber: {
     fontWeight: '600',
-    color: '#0ea5e9',
+    color: '#0891b2',
     fontSize: 14,
   },
   content: {

@@ -21,6 +21,7 @@ import { BirthdayWithSync } from '@/types';
 import NotesTab from '@components/tabs/NotesTab';
 import GiftsTab from '@components/tabs/GiftsTab';
 import MessagesTab from '@components/tabs/MessagesTab';
+import { getThemeColor } from '@/utils/themeColors';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'BirthdayDetail'>;
 type RoutePropType = RouteProp<RootStackParamList, 'BirthdayDetail'>;
@@ -125,7 +126,7 @@ export default function BirthdayDetailScreen() {
       
       {/* Gradient Header */}
       <LinearGradient
-        colors={['#667eea', '#764ba2']}
+        colors={getThemeColor(birthday.metadata?.themeColorId).gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
@@ -140,6 +141,13 @@ export default function BirthdayDetailScreen() {
             </TouchableOpacity>
             
             <View style={{ flex: 1 }} />
+            
+            <TouchableOpacity 
+              style={styles.editButton}
+              onPress={() => navigation.navigate('EditContact', { birthdayId: birthday.id })}
+            >
+              <Ionicons name="pencil" size={20} color="#ffffff" />
+            </TouchableOpacity>
           </View>
           
           <View style={styles.profileSection}>
@@ -216,6 +224,15 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 4,
+  },
+  editButton: {
+    width: 36,
+    height: 36,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 20,

@@ -6,7 +6,7 @@ export const mockBirthdays: Birthday[] = [
     name: 'John Doe',
     date: '1992-08-18', // Today
     phone: '+1234567890',
-    notes: 'Loves hiking and outdoor activities',
+    notes: '',
     updated_at: new Date().toISOString(),
   },
   {

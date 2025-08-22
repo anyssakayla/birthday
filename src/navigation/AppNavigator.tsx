@@ -22,6 +22,7 @@ export type RootStackParamList = {
   AddBirthday: undefined;
   BirthdayDetail: { birthdayId: string };
   EditContact: { birthdayId: string };
+  EditBirthday: { birthdayId: string };
   Settings: undefined;
   Calendar: undefined;
   AddNote: { birthdayId: string };
