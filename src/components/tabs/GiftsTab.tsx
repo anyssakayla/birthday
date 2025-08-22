@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -8,124 +8,279 @@ import {
   ScrollView,
   Alert,
   Dimensions,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+  Animated,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 
 interface GiftsTabProps {
   notes: string;
   personName: string;
 }
 
-const { width: screenWidth } = Dimensions.get('window');
-const GIFT_CARDS = ['Amazon', 'Target', 'Visa', 'Starbucks', 'Spa', 'iTunes'];
+const { width: screenWidth } = Dimensions.get("window");
+
+interface GiftCard {
+  name: string;
+  icon: string;
+  backgroundColor: string;
+  textColor: string;
+}
+
+const GIFT_CARDS: GiftCard[] = [
+  {
+    name: "Amazon",
+    icon: "🛍️",
+    backgroundColor: "#232F3E",
+    textColor: "#ffffff",
+  },
+  {
+    name: "Target",
+    icon: "🎯",
+    backgroundColor: "#CC0000",
+    textColor: "#ffffff",
+  },
+  {
+    name: "Visa",
+    icon: "💳",
+    backgroundColor: "#1A1F71",
+    textColor: "#ffffff",
+  },
+  {
+    name: "Starbucks",
+    icon: "☕",
+    backgroundColor: "#00704A",
+    textColor: "#ffffff",
+  },
+  { name: "Spa", icon: "💆", backgroundColor: "#8B4789", textColor: "#ffffff" },
+  {
+    name: "iTunes",
+    icon: "🎵",
+    backgroundColor: "#FC3C44",
+    textColor: "#ffffff",
+  },
+];
 
 export default function GiftsTab({ notes, personName }: GiftsTabProps) {
-  const [giftIdeas, setGiftIdeas] = useState('');
+  const [giftIdeas, setGiftIdeas] = useState("");
   const [useNotes, setUseNotes] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  
-  useEffect(() => {
-    if (useNotes && notes) {
-      setGiftIdeas(notes);
-    } else if (!useNotes) {
-      setGiftIdeas('');
+  const [hasEditedNotes, setHasEditedNotes] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+
+  const switchAnimation = useRef(new Animated.Value(0)).current;
+  const firstName = personName.split(" ")[0];
+
+  // Truncate notes for display
+  const truncateNotes = (text: string, maxLength: number = 60) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
+
+  const toggleSwitch = () => {
+    const newValue = !useNotes;
+    setUseNotes(newValue);
+
+    Animated.timing(switchAnimation, {
+      toValue: newValue ? 1 : 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+
+    if (newValue && notes) {
+      // Toggle ON - Load truncated notes
+      setGiftIdeas(isInputFocused ? notes : truncateNotes(notes));
+      setHasEditedNotes(false);
+    } else {
+      // Toggle OFF - Clear
+      setGiftIdeas("");
+      setHasEditedNotes(false);
     }
-  }, [useNotes, notes]);
-  
+  };
+
+  const handleInputFocus = () => {
+    setIsInputFocused(true);
+    // If using notes and showing truncated version, show full notes
+    if (useNotes && giftIdeas === truncateNotes(notes)) {
+      setGiftIdeas(notes);
+    }
+  };
+
+  const handleInputBlur = () => {
+    setIsInputFocused(false);
+    // If still using original notes, show truncated version
+    if (useNotes && giftIdeas === notes && !hasEditedNotes) {
+      setGiftIdeas(truncateNotes(notes));
+    }
+  };
+
+  const handleInputChange = (text: string) => {
+    setGiftIdeas(text);
+
+    // Check if user has edited the imported notes
+    if (useNotes && text !== notes && text !== truncateNotes(notes)) {
+      setHasEditedNotes(true);
+    }
+  };
+
   const handleGenerateGifts = () => {
     setIsGenerating(true);
     setTimeout(() => {
       setIsGenerating(false);
       Alert.alert(
-        'Gift Ideas Generated!',
-        'Personalized gift suggestions based on notes and preferences.',
-        [{ text: 'OK' }]
+        "Gift Ideas Generated!",
+        "Personalized gift suggestions based on notes and preferences.",
+        [{ text: "OK" }]
       );
     }, 1500);
   };
-  
-  const handleGiftCardPress = (cardName: string) => {
+
+  const handleGiftCardPress = (card: GiftCard) => {
     Alert.alert(
-      `${cardName} Gift Card`,
-      `Purchase a ${cardName} gift card for ${personName.split(' ')[0]}?`,
+      `${card.name} Gift Card`,
+      `Purchase a ${card.name} gift card for ${firstName}?`,
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Buy Now', onPress: () => console.log(`Buying ${cardName} gift card`) },
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Buy Now",
+          onPress: () => console.log(`Buying ${card.name} gift card`),
+        },
       ]
     );
   };
-  
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.giftGenerator}>
-        <Text style={styles.generatorTitle}>Generate Personalized Gifts</Text>
-        
-        <TextInput
-          style={[
-            styles.giftInput,
-            useNotes && styles.giftInputItalic
-          ]}
-          placeholder="Any specific ideas? (optional)"
-          placeholderTextColor="#8e8e93"
-          multiline
-          value={giftIdeas}
-          onChangeText={(text) => {
-            setGiftIdeas(text);
-            if (text !== notes) {
-              setUseNotes(false);
-            }
-          }}
-          textAlignVertical="top"
-        />
-        
-        <TouchableOpacity 
-          style={[styles.checkboxContainer, useNotes && styles.checkboxContainerChecked]}
-          onPress={() => setUseNotes(!useNotes)}
-        >
-          <View style={[styles.checkbox, useNotes && styles.checkboxChecked]}>
-            {useNotes && <Text style={styles.checkmark}>✓</Text>}
-          </View>
-          <View style={styles.checkboxLabel}>
-            <Text style={styles.checkboxTitle}>Use {personName.split(' ')[0]}'s notes</Text>
-            <Text style={styles.checkboxDescription}>
-              Include saved details for more personalized suggestions
+      <LinearGradient
+        colors={["#f0f4ff", "#f9f0ff"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.giftGenerator}
+      >
+        <Text style={styles.generatorTitle}>Personalized Gifts</Text>
+
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={[
+              styles.minimalInput,
+              useNotes && !hasEditedNotes && styles.inputHasNotes,
+              hasEditedNotes && styles.inputEdited,
+            ]}
+            placeholder="Specific ideas..."
+            placeholderTextColor="#c7c7cc"
+            value={giftIdeas}
+            onChangeText={handleInputChange}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
+            textAlign="center"
+          />
+          {useNotes && (
+            <Text style={styles.notesIndicator}>
+              {!notes
+                ? "No notes in notes tab"
+                : hasEditedNotes
+                ? "Notes customized for this gift search"
+                : "Using notes • Tap to customize"}
             </Text>
+          )}
+        </View>
+
+        <TouchableOpacity
+          style={styles.switchContainer}
+          onPress={toggleSwitch}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.switchLabel}>Use {firstName}'s notes</Text>
+          <View style={[styles.switch, useNotes && styles.switchActive]}>
+            <Animated.View
+              style={[
+                styles.switchKnob,
+                {
+                  transform: [
+                    {
+                      translateX: switchAnimation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [2, 22],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            />
           </View>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.generateButton, isGenerating && styles.generateButtonLoading]}
+
+        <TouchableOpacity
+          style={[
+            styles.generateButton,
+            isGenerating && styles.generateButtonLoading,
+          ]}
           onPress={handleGenerateGifts}
           disabled={isGenerating}
         >
           <LinearGradient
-            colors={['#667eea', '#764ba2']}
+            colors={["#667eea", "#764ba2"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.generateButtonGradient}
           >
             <Text style={styles.generateButtonText}>
-              {isGenerating ? 'Generating...' : `Generate Gift Ideas for ${personName.split(' ')[0]}`}
+              {isGenerating ? "Generating..." : "Generate Ideas"}
             </Text>
           </LinearGradient>
         </TouchableOpacity>
-      </View>
-      
+
+        {useNotes && (
+          <View style={styles.editWarning}>
+            <Text style={styles.editWarningText}>
+              Changes here won't update {firstName}'s saved notes
+            </Text>
+          </View>
+        )}
+      </LinearGradient>
+
+      {/* Notes Preview Section */}
+      {notes && (
+        <View style={styles.notesPreview}>
+          <Text style={styles.notesPreviewTitle}>
+            {firstName}'s Saved Notes:
+          </Text>
+          <Text style={styles.notesPreviewText}>{notes}</Text>
+        </View>
+      )}
+
       <View style={styles.giftCardsSection}>
         <Text style={styles.sectionTitle}>Quick Gift Cards</Text>
         <View style={styles.giftCardsGrid}>
           {GIFT_CARDS.map((card) => (
             <TouchableOpacity
-              key={card}
-              style={styles.giftCardItem}
+              key={card.name}
+              style={[
+                styles.giftCardItem,
+                { backgroundColor: card.backgroundColor },
+              ]}
               onPress={() => handleGiftCardPress(card)}
+              activeOpacity={0.8}
             >
-              <Text style={styles.giftCardText}>{card}</Text>
+              <View style={styles.giftCardContent}>
+                <Text style={styles.giftCardIcon}>{card.icon}</Text>
+                <Text style={[styles.giftCardText, { color: card.textColor }]}>
+                  {card.name}
+                </Text>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
+        
+        <TouchableOpacity 
+          style={styles.seeMoreButton}
+          onPress={() => Alert.alert('See More', 'More gift cards coming soon!')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.seeMoreButtonText}>See More</Text>
+        </TouchableOpacity>
       </View>
-      
+
       <View style={{ height: 40 }} />
     </ScrollView>
   );
@@ -135,117 +290,143 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f2f2f7',
+    backgroundColor: "#f5f5f7",
   },
   giftGenerator: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
-    padding: 20,
+    padding: 24,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 30,
+    elevation: 8,
   },
   generatorTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1c1c1e',
-    marginBottom: 16,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1c1c1e",
+    marginBottom: 20,
+    textAlign: "center",
   },
-  giftInput: {
-    backgroundColor: '#f9f9f9',
-    borderWidth: 2,
-    borderColor: '#e5e5e7',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    color: '#1c1c1e',
-    minHeight: 80,
-    textAlignVertical: 'top',
-    marginBottom: 16,
-    lineHeight: 22,
-  },
-  giftInputItalic: {
-    fontStyle: 'italic',
-    color: '#3a3a3c',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    padding: 14,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: 'transparent',
+  inputWrapper: {
     marginBottom: 20,
   },
-  checkboxContainerChecked: {
-    backgroundColor: '#e7f0ff',
-    borderColor: '#007aff',
+  minimalInput: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: "#667eea",
+    fontSize: 16,
+    color: "#1c1c1e",
+    backgroundColor: "transparent",
+    textAlign: "center",
   },
-  checkbox: {
+  inputHasNotes: {
+    fontStyle: "italic",
+    color: "#667eea",
+  },
+  inputEdited: {
+    fontStyle: "normal",
+    color: "#1c1c1e",
+  },
+  notesIndicator: {
+    fontSize: 12,
+    color: "#667eea",
+    marginTop: 8,
+    textAlign: "center",
+  },
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    marginBottom: 24,
+  },
+  switchLabel: {
+    fontSize: 14,
+    color: "#1c1c1e",
+  },
+  switch: {
+    width: 48,
+    height: 28,
+    backgroundColor: "#e5e5e7",
+    borderRadius: 14,
+    padding: 2,
+  },
+  switchActive: {
+    backgroundColor: "#667eea",
+  },
+  switchKnob: {
     width: 24,
     height: 24,
-    borderWidth: 2,
-    borderColor: '#c7c7cc',
-    borderRadius: 6,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  checkboxChecked: {
-    backgroundColor: '#007aff',
-    borderColor: '#007aff',
-  },
-  checkmark: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  checkboxLabel: {
-    flex: 1,
-  },
-  checkboxTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1c1c1e',
-    marginBottom: 4,
-  },
-  checkboxDescription: {
-    fontSize: 14,
-    color: '#8e8e93',
-    lineHeight: 20,
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   generateButton: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#667eea',
+    borderRadius: 24,
+    overflow: "hidden",
+    shadowColor: "#667eea",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 15,
+    shadowRadius: 12,
     elevation: 6,
   },
   generateButtonLoading: {
     opacity: 0.7,
   },
   generateButtonGradient: {
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    justifyContent: "center",
   },
   generateButtonText: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#ffffff",
+  },
+  editWarning: {
+    marginTop: 8,
+    alignItems: "center",
+  },
+  editWarningIcon: {
+    fontSize: 13,
+    marginRight: 6,
+  },
+  editWarningText: {
+    fontSize: 11,
+    color: "#8e8e93",
+    textAlign: "center",
+  },
+  notesPreview: {
+    backgroundColor: "#f0f0f2",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 20,
+  },
+  notesPreviewTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 8,
+  },
+  notesPreviewText: {
+    fontSize: 13,
+    color: "#666",
+    lineHeight: 20,
   },
   giftCardsSection: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 16,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
@@ -253,28 +434,50 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#8e8e93',
-    textAlign: 'center',
+    fontWeight: "600",
+    color: "#8e8e93",
+    textAlign: "center",
     marginBottom: 16,
   },
   giftCardsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
+    justifyContent: "center",
   },
   giftCardItem: {
-    width: (screenWidth - 64) / 3,
-    backgroundColor: '#f9f9f9',
-    borderWidth: 2,
-    borderColor: '#e5e5e7',
+    width: (screenWidth - 80 - 24) / 3, // screenWidth - total padding (80) - gaps (24)
+    height: 90,
     borderRadius: 12,
-    paddingVertical: 20,
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  giftCardContent: {
+    alignItems: "center",
+    gap: 8,
+  },
+  giftCardIcon: {
+    fontSize: 32,
   },
   giftCardText: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#1c1c1e',
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  seeMoreButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignSelf: 'center',
+  },
+  seeMoreButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#667eea',
   },
 });
