@@ -90,9 +90,6 @@ export default function HomeScreen() {
     return days >= 0 && days <= 7;
   }).length;
   
-  console.log('This week count:', thisWeekCount);
-  console.log('Birthdays:', birthdays.map(b => ({ name: b.name, date: b.date, days: getDaysUntilBirthday(b.date) })));
-  
   const currentMonthName = format(new Date(), 'MMMM');
   const nextMonthName = format(new Date(new Date().setMonth(new Date().getMonth() + 1)), 'MMMM');
   

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -16,8 +16,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { useBirthdayStore } from '@/stores';
 import { RootStackParamList } from '@/navigation/AppNavigator';
-import { BirthdayWithSync } from '@/types';
 import { themeColors } from '@/utils/themeColors';
+import SegmentedDatePicker from '@/components/ui/SegmentedDatePicker';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'EditContact'>;
 type RoutePropType = RouteProp<RootStackParamList, 'EditContact'>;
@@ -28,19 +28,10 @@ export default function EditContactScreen() {
   const { birthdayId } = route.params;
   
   const { birthdays, updateBirthday } = useBirthdayStore();
-  const [birthday, setBirthday] = useState<BirthdayWithSync | null>(null);
-  const [selectedColorId, setSelectedColorId] = useState('1');
-  
-  useEffect(() => {
-    const found = birthdays.find(b => b.id === birthdayId);
-    if (found) {
-      setBirthday(found);
-      // Get saved color from metadata if exists
-      if (found.metadata?.themeColorId) {
-        setSelectedColorId(found.metadata.themeColorId);
-      }
-    }
-  }, [birthdayId, birthdays]);
+  const birthday = birthdays.find(b => b.id === birthdayId);
+  const [selectedColorId, setSelectedColorId] = useState(
+    birthday?.metadata?.themeColorId || '1'
+  );
   
   if (!birthday) {
     return null;
@@ -58,7 +49,35 @@ export default function EditContactScreen() {
     });
   };
   
+  const handleDateChange = async (newDate: string) => {
+    await updateBirthday(birthday.id, {
+      date: newDate,
+    });
+  };
+  
+  const calculateAge = (birthDate: string) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    const currentYear = today.getFullYear();
+    const birthYear = birth.getFullYear();
+    
+    // Create birthday this year
+    const birthdayThisYear = new Date(currentYear, birth.getMonth(), birth.getDate());
+    
+    // Calculate age they're turning
+    let age = currentYear - birthYear;
+    
+    // If birthday hasn't happened yet this year, they're turning the age
+    // If it already happened, they already turned that age
+    if (birthdayThisYear > today) {
+      return age;
+    } else {
+      return age + 1; // Next birthday they'll turn this age
+    }
+  };
+  
   const selectedColor = themeColors.find(c => c.id === selectedColorId) || themeColors[0];
+  const turningAge = calculateAge(birthday.date);
   
   return (
     <View style={styles.container}>
@@ -147,6 +166,24 @@ export default function EditContactScreen() {
           <View style={styles.templateInput}>
             <Text style={styles.templatePlaceholder}>
               Leave empty to use global template
+            </Text>
+          </View>
+        </View>
+        
+        {/* Birthday Details Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Birthday Details</Text>
+          <View style={styles.birthdayContainer}>
+            <View style={styles.birthdayHeader}>
+              <Text style={styles.birthdayIcon}>🎂</Text>
+              <Text style={styles.birthdayLabel}>Birthday Date</Text>
+            </View>
+            <SegmentedDatePicker
+              value={birthday.date}
+              onChange={handleDateChange}
+            />
+            <Text style={styles.ageText}>
+              Turning {turningAge} this year
             </Text>
           </View>
         </View>
@@ -272,5 +309,30 @@ const styles = StyleSheet.create({
   templatePlaceholder: {
     fontSize: 15,
     color: '#94a3b8',
+  },
+  birthdayContainer: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    padding: 16,
+  },
+  birthdayHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  birthdayIcon: {
+    fontSize: 20,
+  },
+  birthdayLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#1a1d23',
+  },
+  ageText: {
+    fontSize: 14,
+    color: '#64748b',
+    marginTop: 12,
+    textAlign: 'center',
   },
 });

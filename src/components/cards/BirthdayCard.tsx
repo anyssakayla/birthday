@@ -1,21 +1,27 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { format } from 'date-fns';
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { format } from "date-fns";
 
-import Avatar from '@components/ui/Avatar';
-import { theme } from '@/theme';
-import { Birthday } from '@/types';
-import { RootStackParamList } from '@/navigation/AppNavigator';
-import { getThemeColor } from '@/utils/themeColors';
+import Avatar from "@components/ui/Avatar";
+import { theme } from "@/theme";
+import { Birthday } from "@/types";
+import { RootStackParamList } from "@/navigation/AppNavigator";
+import { getThemeColor } from "@/utils/themeColors";
 
-type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
 interface BirthdayCardProps {
   birthday: Birthday;
-  variant: 'today' | 'upcoming' | 'future';
+  variant: "today" | "upcoming" | "future";
   onPress?: () => void;
 }
 
@@ -25,11 +31,11 @@ const calculateAge = (birthDate: string): number => {
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();
   const monthDiff = today.getMonth() - birth.getMonth();
-  
+
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
     age--;
   }
-  
+
   return age;
 };
 
@@ -40,55 +46,59 @@ const getDaysUntilBirthday = (date: string): number => {
   const birthday = new Date(date);
   birthday.setFullYear(today.getFullYear());
   birthday.setHours(0, 0, 0, 0);
-  
+
   if (birthday < today) {
     birthday.setFullYear(today.getFullYear() + 1);
   }
-  
+
   const diffTime = birthday.getTime() - today.getTime();
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 
-export default function BirthdayCard({ birthday, variant, onPress }: BirthdayCardProps) {
+export default function BirthdayCard({
+  birthday,
+  variant,
+  onPress,
+}: BirthdayCardProps) {
   const navigation = useNavigation<NavigationProp>();
-  
+
   const handlePress = () => {
     if (onPress) {
       onPress();
     } else {
-      navigation.navigate('BirthdayDetail', { birthdayId: birthday.id });
+      navigation.navigate("BirthdayDetail", { birthdayId: birthday.id });
     }
   };
-  
+
   const age = calculateAge(birthday.date);
   const birthDate = new Date(birthday.date);
-  const formattedDate = format(birthDate, 'MMM d');
+  const formattedDate = format(birthDate, "MMM d");
   const daysUntil = getDaysUntilBirthday(birthday.date);
-  
+
   // Get border color based on variant
   const getBorderColor = () => {
     switch (variant) {
-      case 'today':
+      case "today":
         return theme.colors.success.main;
-      case 'upcoming':
+      case "upcoming":
         return theme.colors.warning.main;
       default:
         return theme.colors.border.light;
     }
   };
-  
+
   // Get age text based on variant
   const getAgeText = () => {
     switch (variant) {
-      case 'today':
+      case "today":
         return `Turning ${age} today`;
       default:
         return `Turning ${age}`;
     }
   };
-  
+
   return (
-    <Pressable 
+    <Pressable
       onPress={handlePress}
       style={({ pressed }) => [
         styles.container,
@@ -99,77 +109,98 @@ export default function BirthdayCard({ birthday, variant, onPress }: BirthdayCar
       {/* Birthday Badge */}
       <View style={styles.birthdayBadge}>
         <View style={styles.dateSection}>
-          <Text style={styles.cakeIcon}>🎂</Text>
+          <Ionicons name="gift" size={14} color="#0891b2" />
           <Text style={styles.badgeText}>{formattedDate}</Text>
         </View>
         <View style={styles.dividerVertical} />
         <View style={styles.countdownSection}>
           <Text style={styles.countdownText}>
-            {daysUntil === 0 ? 'Today' : `${daysUntil} ${daysUntil === 1 ? 'day' : 'days'}`}
+            {daysUntil === 0
+              ? "Today"
+              : `${daysUntil} ${daysUntil === 1 ? "day" : "days"}`}
           </Text>
         </View>
       </View>
-      
+
       {/* Card Content */}
       <View style={styles.content}>
         <View style={styles.header}>
-          <Avatar 
-            name={birthday.name} 
-            size="medium" 
-            customColors={getThemeColor(birthday.metadata?.themeColorId).gradient}
+          <Avatar
+            name={birthday.name}
+            size="medium"
+            customColors={
+              getThemeColor(birthday.metadata?.themeColorId).gradient
+            }
           />
           <View style={styles.info}>
-            <Text style={styles.name}>{birthday.name}</Text>
+            <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+              {birthday.name}
+            </Text>
             <Text style={styles.meta}>{getAgeText()}</Text>
           </View>
         </View>
-        
+
         {/* Message Preview for Today's Birthdays */}
-        {variant === 'today' && (
+        {variant === "today" && (
           <View style={styles.messagePreview}>
             <Text style={styles.messageLabel}>Ready to send:</Text>
             <Text style={styles.messageText}>
-              "Happy birthday {birthday.name.split(' ')[0]}! 🎉 Hope you have a great day!"
+              "Happy birthday {birthday.name.split(" ")[0]}! 🎉 Hope you have a
+              great day!"
             </Text>
             <TouchableOpacity>
               <Text style={styles.editMessage}>Edit message</Text>
             </TouchableOpacity>
           </View>
         )}
-        
+
         {/* Action Buttons */}
         <View style={styles.actions}>
-          {variant === 'today' && (
+          {variant === "today" && (
             <>
               <TouchableOpacity style={[styles.button, styles.primaryButton]}>
                 <Text style={styles.messageIcon}>💬</Text>
-                <Text style={styles.primaryButtonText}>Send Birthday Message</Text>
+                <Text style={styles.primaryButtonText}>
+                  Send Birthday Message
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.button, styles.secondaryButton]}>
                 <Text style={styles.secondaryButtonText}>Send Gift</Text>
               </TouchableOpacity>
             </>
           )}
-          
-          {variant === 'upcoming' && (
+
+          {variant === "upcoming" && (
             <>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.button, styles.primaryButton]}
-                onPress={() => navigation.navigate('BirthdayDetail', { birthdayId: birthday.id, initialTab: 'gifts' })}
+                onPress={() =>
+                  navigation.navigate("BirthdayDetail", {
+                    birthdayId: birthday.id,
+                    initialTab: "gifts",
+                  })
+                }
               >
                 <Text style={styles.primaryButtonText}>Plan Gift</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.button, styles.secondaryButton]}
-                onPress={() => navigation.navigate('BirthdayDetail', { birthdayId: birthday.id, initialTab: 'notes' })}
+                onPress={() =>
+                  navigation.navigate("BirthdayDetail", {
+                    birthdayId: birthday.id,
+                    initialTab: "notes",
+                  })
+                }
               >
                 <Text style={styles.secondaryButtonText}>Add Note</Text>
               </TouchableOpacity>
             </>
           )}
-          
-          {variant === 'future' && (
-            <TouchableOpacity style={[styles.button, styles.secondaryButton, styles.fullWidth]}>
+
+          {variant === "future" && (
+            <TouchableOpacity
+              style={[styles.button, styles.secondaryButton, styles.fullWidth]}
+            >
               <Text style={styles.secondaryButtonText}>View Details</Text>
             </TouchableOpacity>
           )}
@@ -187,28 +218,30 @@ const styles = StyleSheet.create({
     marginVertical: theme.componentSpacing.card.marginVertical,
     ...theme.shadows.small,
     borderLeftWidth: 4,
-    position: 'relative',
+    position: "relative",
+    overflow: "visible",
   },
   pressed: {
     ...theme.shadows.medium,
     transform: [{ translateY: -2 }],
   },
   birthdayBadge: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
+    position: "absolute",
+    top: -4,
+    right: -2,
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: '#f0f9ff',
+    backgroundColor: "#f0f9ff",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#e0f2fe',
+    borderColor: "#e0f2fe",
+    zIndex: 10,
   },
   dateSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
   },
   cakeIcon: {
@@ -216,32 +249,33 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 13,
-    fontWeight: '500',
-    color: '#0891b2',
+    fontWeight: "500",
+    color: "#0891b2",
   },
   dividerVertical: {
     width: 1,
     height: 16,
-    backgroundColor: '#cbd5e1',
+    backgroundColor: "#cbd5e1",
     marginHorizontal: 10,
   },
   countdownSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   countdownText: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#0891b2',
+    fontWeight: "600",
+    color: "#0891b2",
   },
   content: {
     padding: theme.componentSpacing.card.padding,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: theme.spacing.md,
     marginBottom: theme.spacing.md,
+    paddingRight: 140, // Prevent overlap with badge
   },
   info: {
     flex: 1,
@@ -270,7 +304,8 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: theme.typography.fontSize.body,
     color: theme.colors.neutral.gray900,
-    lineHeight: theme.typography.fontSize.body * theme.typography.lineHeight.normal,
+    lineHeight:
+      theme.typography.fontSize.body * theme.typography.lineHeight.normal,
     marginBottom: theme.spacing.sm,
   },
   editMessage: {
@@ -278,7 +313,7 @@ const styles = StyleSheet.create({
     color: theme.colors.primary.main,
   },
   actions: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: theme.spacing.sm,
     marginTop: theme.spacing.xs,
   },
@@ -287,9 +322,9 @@ const styles = StyleSheet.create({
     paddingVertical: theme.componentSpacing.button.paddingVertical,
     paddingHorizontal: theme.componentSpacing.button.paddingHorizontal,
     borderRadius: theme.borderRadius.medium,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: theme.componentSpacing.button.gap,
   },
   primaryButton: {
