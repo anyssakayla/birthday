@@ -11,7 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 interface SegmentedDatePickerProps {
-  value: string; // ISO date string YYYY-MM-DD
+  value: string; // ISO date string YYYY-MM-DD or 0000-MM-DD for no year
   onChange: (date: string) => void;
 }
 
@@ -21,19 +21,24 @@ const MONTHS = [
 ];
 
 const CURRENT_YEAR = new Date().getFullYear();
-const YEARS = Array.from({ length: CURRENT_YEAR - 1920 + 1 }, (_, i) => CURRENT_YEAR - i);
+const YEARS = ['No Year', ...Array.from({ length: CURRENT_YEAR - 1920 + 1 }, (_, i) => CURRENT_YEAR - i)];
 
 export default function SegmentedDatePicker({ value, onChange }: SegmentedDatePickerProps) {
-  const date = new Date(value);
+  // Parse the date, handling the case where year might be 0000
+  const hasYear = !value.startsWith('0000');
+  const date = hasYear ? new Date(value) : new Date(value.replace('0000', '2000')); // Use 2000 as placeholder for parsing
+  
   const [selectedMonth, setSelectedMonth] = useState(date.getMonth());
   const [selectedDay, setSelectedDay] = useState(date.getDate());
-  const [selectedYear, setSelectedYear] = useState(date.getFullYear());
+  const [selectedYear, setSelectedYear] = useState<number | null>(hasYear ? date.getFullYear() : null);
   const [activeModal, setActiveModal] = useState<'month' | 'day' | 'year' | null>(null);
   const isInitialMount = useRef(true);
   
   // Calculate days in month
-  const getDaysInMonth = (month: number, year: number) => {
-    return new Date(year, month + 1, 0).getDate();
+  const getDaysInMonth = (month: number, year: number | null) => {
+    // Use a leap year (2000) as default when no year is selected to allow Feb 29
+    const yearToUse = year || 2000;
+    return new Date(yearToUse, month + 1, 0).getDate();
   };
   
   const daysInMonth = getDaysInMonth(selectedMonth, selectedYear);
@@ -54,8 +59,9 @@ export default function SegmentedDatePicker({ value, onChange }: SegmentedDatePi
       return;
     }
     
-    const newDate = new Date(selectedYear, selectedMonth, selectedDay);
-    const isoString = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+    // Use 0000 for year when no year is selected
+    const yearString = selectedYear ? String(selectedYear) : '0000';
+    const isoString = `${yearString}-${String(selectedMonth + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
     
     // Only call onChange if the date actually changed
     if (isoString !== value) {
@@ -80,7 +86,7 @@ export default function SegmentedDatePicker({ value, onChange }: SegmentedDatePi
         break;
       case 'year':
         items = YEARS;
-        selectedIndex = YEARS.indexOf(selectedYear);
+        selectedIndex = selectedYear ? YEARS.indexOf(selectedYear) : 0; // 'No Year' is at index 0
         break;
     }
     
@@ -126,7 +132,7 @@ export default function SegmentedDatePicker({ value, onChange }: SegmentedDatePi
                         setSelectedDay(index + 1);
                         break;
                       case 'year':
-                        setSelectedYear(item as number);
+                        setSelectedYear(item === 'No Year' ? null : item as number);
                         break;
                     }
                     setActiveModal(null);
@@ -176,7 +182,9 @@ export default function SegmentedDatePicker({ value, onChange }: SegmentedDatePi
           onPress={() => setActiveModal('year')}
           activeOpacity={0.7}
         >
-          <Text style={styles.dropdownText}>{selectedYear}</Text>
+          <Text style={[styles.dropdownText, !selectedYear && styles.placeholderText]}>
+            {selectedYear || 'No Year'}
+          </Text>
           <Ionicons name="chevron-down" size={16} color="#64748b" />
         </TouchableOpacity>
       </View>
@@ -212,6 +220,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#1a1d23',
     fontWeight: '500',
+  },
+  placeholderText: {
+    color: '#94a3b8',
   },
   modalOverlay: {
     flex: 1,

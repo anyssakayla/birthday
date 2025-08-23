@@ -26,7 +26,12 @@ interface BirthdayCardProps {
 }
 
 // Helper to calculate age
-const calculateAge = (birthDate: string): number => {
+const calculateAge = (birthDate: string): number | null => {
+  // Check if year is missing (0000)
+  if (birthDate.startsWith('0000')) {
+    return null;
+  }
+  
   const birth = new Date(birthDate);
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();
@@ -43,7 +48,10 @@ const calculateAge = (birthDate: string): number => {
 const getDaysUntilBirthday = (date: string): number => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const birthday = new Date(date);
+  
+  // Handle dates without year (0000-MM-DD)
+  const dateToUse = date.startsWith('0000') ? date.replace('0000', today.getFullYear().toString()) : date;
+  const birthday = new Date(dateToUse);
   birthday.setFullYear(today.getFullYear());
   birthday.setHours(0, 0, 0, 0);
 
@@ -71,7 +79,11 @@ export default function BirthdayCard({
   };
 
   const age = calculateAge(birthday.date);
-  const birthDate = new Date(birthday.date);
+  // Handle dates without year for display
+  const dateForDisplay = birthday.date.startsWith('0000') 
+    ? birthday.date.replace('0000', new Date().getFullYear().toString()) 
+    : birthday.date;
+  const birthDate = new Date(dateForDisplay);
   const formattedDate = format(birthDate, "MMM d");
   const daysUntil = getDaysUntilBirthday(birthday.date);
 
@@ -89,6 +101,9 @@ export default function BirthdayCard({
 
   // Get age text based on variant
   const getAgeText = () => {
+    if (age === null) {
+      return "Age unknown";
+    }
     switch (variant) {
       case "today":
         return `Turning ${age} today`;

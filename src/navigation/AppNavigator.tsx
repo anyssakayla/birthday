@@ -14,6 +14,7 @@ import {
   CalendarScreen,
   AddNoteScreen,
   GiftPlanningScreen,
+  TemplatesScreen,
 } from '@/screens';
 
 // Define navigation param types
@@ -27,6 +28,7 @@ export type RootStackParamList = {
   Calendar: undefined;
   AddNote: { birthdayId: string };
   GiftPlanning: { birthdayId: string };
+  Templates: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -120,6 +122,14 @@ export default function AppNavigator() {
         <Stack.Screen 
           name="GiftPlanning" 
           component={GiftPlanningScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        
+        <Stack.Screen 
+          name="Templates" 
+          component={TemplatesScreen}
           options={{
             headerShown: false,
           }}

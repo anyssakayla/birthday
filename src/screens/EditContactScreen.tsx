@@ -56,6 +56,11 @@ export default function EditContactScreen() {
   };
   
   const calculateAge = (birthDate: string) => {
+    // Check if year is missing (0000)
+    if (birthDate.startsWith('0000')) {
+      return null;
+    }
+    
     const today = new Date();
     const birth = new Date(birthDate);
     const currentYear = today.getFullYear();
@@ -182,9 +187,11 @@ export default function EditContactScreen() {
               value={birthday.date}
               onChange={handleDateChange}
             />
-            <Text style={styles.ageText}>
-              Turning {turningAge} this year
-            </Text>
+            {turningAge !== null && (
+              <Text style={styles.ageText}>
+                Turning {turningAge} this year
+              </Text>
+            )}
           </View>
         </View>
       </ScrollView>

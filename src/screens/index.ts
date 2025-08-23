@@ -6,3 +6,4 @@ export { default as SettingsScreen } from './SettingsScreen';
 export { default as CalendarScreen } from './CalendarScreen';
 export { default as AddNoteScreen } from './AddNoteScreen';
 export { default as GiftPlanningScreen } from './GiftPlanningScreen';
+export { default as TemplatesScreen } from './TemplatesScreen';

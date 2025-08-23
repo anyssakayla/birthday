@@ -64,6 +64,11 @@ export default function BirthdayDetailScreen() {
   };
   
   const calculateAge = (birthDate: string) => {
+    // Check if year is missing (0000)
+    if (birthDate.startsWith('0000')) {
+      return null;
+    }
+    
     const today = new Date();
     const birth = new Date(birthDate);
     const currentYear = today.getFullYear();
@@ -85,7 +90,11 @@ export default function BirthdayDetailScreen() {
   };
   
   const formatBirthdayDate = (dateString: string) => {
-    const date = new Date(dateString);
+    // Handle dates without year
+    const dateToFormat = dateString.startsWith('0000') 
+      ? dateString.replace('0000', new Date().getFullYear().toString()) 
+      : dateString;
+    const date = new Date(dateToFormat);
     return format(date, 'MMMM do'); // e.g., "August 17th"
   };
   
@@ -164,7 +173,9 @@ export default function BirthdayDetailScreen() {
               <Text style={styles.profileName}>{birthday.name}</Text>
               <View style={styles.birthdayInfo}>
                 <Text style={styles.profileSubtext}>{formatBirthdayDate(birthday.date)}</Text>
-                <Text style={styles.ageText}>• Turning {calculateAge(birthday.date)}</Text>
+                {calculateAge(birthday.date) !== null && (
+                  <Text style={styles.ageText}>• Turning {calculateAge(birthday.date)}</Text>
+                )}
               </View>
             </View>
           </View>
