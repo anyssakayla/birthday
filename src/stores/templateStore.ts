@@ -7,6 +7,7 @@ export interface MessageTemplate {
   title: string;
   icon: string;
   message: string;
+  color: string;
 }
 
 interface TemplateStore {
@@ -22,6 +23,7 @@ const defaultTemplates: MessageTemplate[] = [
     category: 'friend',
     title: 'Friend',
     icon: '👥',
+    color: '#007AFF',
     message: `Happy Birthday, {name}! 🎉
 
 Hope your special day is filled with lots of love, laughter, and all your favorite things. Here's to another year of amazing memories together!
@@ -33,6 +35,7 @@ Cheers to you! 🥳`,
     category: 'family',
     title: 'Family',
     icon: '👨‍👩‍👧',
+    color: '#667EEA',
     message: `Dear {name}, 🎂
 
 Wishing you a wonderful birthday filled with joy and happiness. May this year bring you good health, success, and countless blessings.
@@ -44,6 +47,7 @@ With love from your family ❤️`,
     category: 'colleague',
     title: 'Colleague',
     icon: '💼',
+    color: '#FF9500',
     message: `Happy Birthday, {name}!
 
 Wishing you a fantastic day and a year ahead filled with success and new opportunities. Hope you enjoy your special day!

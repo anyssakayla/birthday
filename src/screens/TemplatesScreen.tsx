@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
 import { RootStackParamList } from '@/navigation/AppNavigator';
 import { useTemplateStore, MessageTemplate } from '@/stores/templateStore';
@@ -59,23 +59,28 @@ export default function TemplatesScreen() {
   };
 
   const renderTemplateCard = (template: MessageTemplate) => {
-    const preview = template.message.split('\n').slice(0, 2).join('\n');
-    const truncatedPreview = preview.length > 80 ? preview.substring(0, 80) + '...' : preview;
+    const preview = template.message.split('\n').slice(0, 4).join('\n');
+    const truncatedPreview = preview.length > 150 ? preview.substring(0, 150) + '...' : preview;
 
     return (
-      <TouchableOpacity
-        key={template.id}
-        style={styles.templateCard}
-        onPress={() => handleEditTemplate(template)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.cardHeader}>
-          <Text style={styles.templateIcon}>{template.icon}</Text>
-          <Text style={styles.templateTitle}>{template.title}</Text>
-        </View>
-        <Text style={styles.templatePreview}>{truncatedPreview}</Text>
-        <Text style={styles.editHint}>Tap to edit →</Text>
-      </TouchableOpacity>
+      <View key={template.id} style={styles.templateSection}>
+        <Text style={[styles.templateTitle, { color: template.color }]}>
+          {template.title}
+        </Text>
+        <TouchableOpacity
+          style={[styles.templateCard, { borderColor: template.color }]}
+          onPress={() => handleEditTemplate(template)}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.templatePreview}>{truncatedPreview}</Text>
+          <TouchableOpacity 
+            style={[styles.editButton, { backgroundColor: template.color + '15' }]}
+            onPress={() => handleEditTemplate(template)}
+          >
+            <Ionicons name="pencil" size={16} color={template.color} />
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -102,24 +107,6 @@ export default function TemplatesScreen() {
         <View style={styles.templatesContainer}>
           {templates.map(renderTemplateCard)}
         </View>
-        
-        <View style={styles.infoSection}>
-          <Text style={styles.infoTitle}>Available Variables</Text>
-          <View style={styles.variablesList}>
-            <View style={styles.variableChip}>
-              <Text style={styles.variableText}>{'{name}'}</Text>
-            </View>
-            <View style={styles.variableChip}>
-              <Text style={styles.variableText}>{'{age}'}</Text>
-            </View>
-            <View style={styles.variableChip}>
-              <Text style={styles.variableText}>{'{relationship}'}</Text>
-            </View>
-          </View>
-          <Text style={styles.infoText}>
-            Use these variables in your templates and they'll be automatically replaced with the person's information.
-          </Text>
-        </View>
 
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -136,17 +123,25 @@ export default function TemplatesScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <SafeAreaView style={styles.modalHeader}>
-            <TouchableOpacity onPress={handleCancelEdit}>
-              <Text style={styles.modalCancel}>Cancel</Text>
-            </TouchableOpacity>
-            
-            <Text style={styles.modalTitle}>
-              Edit {editingTemplate?.title} Template
-            </Text>
-            
-            <TouchableOpacity onPress={handleSaveTemplate}>
-              <Text style={styles.modalSave}>Save</Text>
-            </TouchableOpacity>
+            <View style={styles.modalHeaderContent}>
+              <TouchableOpacity 
+                style={styles.modalCancelButton}
+                onPress={handleCancelEdit}
+              >
+                <Text style={styles.modalCancel}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <Text style={styles.modalTitle}>
+                Edit {editingTemplate?.title} Template
+              </Text>
+              
+              <TouchableOpacity 
+                style={[styles.modalSaveButton, { backgroundColor: editingTemplate?.color || '#007aff' }]}
+                onPress={handleSaveTemplate}
+              >
+                <Text style={styles.modalSave}>Save</Text>
+              </TouchableOpacity>
+            </View>
           </SafeAreaView>
 
           <ScrollView style={styles.modalContent} keyboardShouldPersistTaps="handled">
@@ -172,6 +167,9 @@ export default function TemplatesScreen() {
                   <Text style={styles.variableText}>{'{relationship}'}</Text>
                 </TouchableOpacity>
               </View>
+              <Text style={styles.variableInfoText}>
+                Use these variables in your templates and they'll be automatically replaced with the person's information.
+              </Text>
             </View>
 
             <View style={styles.editorSection}>
@@ -260,55 +258,45 @@ const styles = StyleSheet.create({
   },
   templatesContainer: {
     padding: 20,
-    gap: 16,
+  },
+  templateSection: {
+    marginBottom: 24,
+  },
+  templateTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+    marginLeft: 4,
   },
   templateCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 20,
-    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 3,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    gap: 12,
-  },
-  templateIcon: {
-    fontSize: 32,
-  },
-  templateTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1c1c1e',
+    position: 'relative',
+    minHeight: 120,
+    borderWidth: 1.5,
   },
   templatePreview: {
-    fontSize: 14,
-    color: '#8e8e93',
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  editHint: {
-    fontSize: 14,
-    color: '#007aff',
-    fontWeight: '500',
-  },
-  infoSection: {
-    margin: 20,
-    padding: 20,
-    backgroundColor: '#f0f0f2',
-    borderRadius: 12,
-  },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
     color: '#1c1c1e',
-    marginBottom: 12,
+    lineHeight: 22,
+    textAlign: 'center',
+    paddingHorizontal: 10,
+  },
+  editButton: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   variablesList: {
     flexDirection: 'row',
@@ -327,11 +315,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: '500',
   },
-  infoText: {
-    fontSize: 14,
-    color: '#6e6e73',
-    lineHeight: 20,
-  },
   modalContainer: {
     flex: 1,
     backgroundColor: '#f8f9fa',
@@ -340,15 +323,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
+    paddingBottom: 16,
+  },
+  modalHeaderContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
+  modalCancelButton: {
+    padding: 8,
+    minWidth: 60,
   },
   modalCancel: {
     fontSize: 17,
-    color: '#007aff',
+    color: '#8e8e93',
   },
   modalTitle: {
     fontSize: 17,
@@ -356,12 +346,19 @@ const styles = StyleSheet.create({
     color: '#1c1c1e',
     flex: 1,
     textAlign: 'center',
-    marginHorizontal: 20,
+    marginHorizontal: 16,
+  },
+  modalSaveButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 14,
+    minWidth: 50,
+    alignItems: 'center',
   },
   modalSave: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#007aff',
+    color: '#ffffff',
   },
   modalContent: {
     flex: 1,
@@ -377,6 +374,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  variableInfoText: {
+    fontSize: 13,
+    color: '#6e6e73',
+    lineHeight: 18,
+    marginTop: 4,
   },
   editorSection: {
     marginBottom: 20,
