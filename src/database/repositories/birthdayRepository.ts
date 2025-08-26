@@ -17,6 +17,11 @@ export class BirthdayRepository {
       date: input.date,
       notes: input.notes,
       updated_at: now,
+      metadata: {
+        relationship: 'friend',
+        themeColorId: '1',
+        ...input.metadata
+      }
     };
     
     await this.db.runAsync(

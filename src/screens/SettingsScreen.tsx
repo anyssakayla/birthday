@@ -426,7 +426,7 @@ export default function SettingsScreen() {
   };
   
   const handleManageExisting = () => {
-    navigation.navigate('Home');
+    navigation.navigate('ManageContacts');
   };
   
   const handleExportData = () => {

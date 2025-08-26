@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   StatusBar,
   Platform,
+  TextInput,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -15,9 +16,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { useBirthdayStore } from '@/stores';
+import { useTemplateStore } from '@/stores/templateStore';
 import { RootStackParamList } from '@/navigation/AppNavigator';
 import { themeColors } from '@/utils/themeColors';
 import SegmentedDatePicker from '@/components/ui/SegmentedDatePicker';
+import { RELATIONSHIP_COLORS, CUSTOM_COLOR } from '@/constants/colors';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'EditContact'>;
 type RoutePropType = RouteProp<RootStackParamList, 'EditContact'>;
@@ -28,10 +31,21 @@ export default function EditContactScreen() {
   const { birthdayId } = route.params;
   
   const { birthdays, updateBirthday } = useBirthdayStore();
+  const { templates, loadTemplates } = useTemplateStore();
   const birthday = birthdays.find(b => b.id === birthdayId);
   const [selectedColorId, setSelectedColorId] = useState(
     birthday?.metadata?.themeColorId || '1'
   );
+  const [selectedTemplateType, setSelectedTemplateType] = useState<'friend' | 'family' | 'colleague' | 'custom'>(
+    birthday?.metadata?.templateType || birthday?.metadata?.relationship || 'friend'
+  );
+  const [customMessage, setCustomMessage] = useState(
+    birthday?.metadata?.customMessage || ''
+  );
+  
+  useEffect(() => {
+    loadTemplates();
+  }, []);
   
   if (!birthday) {
     return null;
@@ -45,6 +59,32 @@ export default function EditContactScreen() {
       metadata: {
         ...birthday.metadata,
         themeColorId: colorId,
+      }
+    });
+  };
+  
+  const handleTemplateTypeSelect = async (type: 'friend' | 'family' | 'colleague' | 'custom') => {
+    setSelectedTemplateType(type);
+    
+    // Save the template type and relationship to birthday metadata
+    await updateBirthday(birthday.id, {
+      metadata: {
+        ...birthday.metadata,
+        templateType: type,
+        // Also update relationship based on template type (custom defaults to friend)
+        relationship: type === 'custom' ? 'friend' : type,
+      }
+    });
+  };
+  
+  const handleCustomMessageChange = async (message: string) => {
+    setCustomMessage(message);
+    
+    // Save the custom message to birthday metadata
+    await updateBirthday(birthday.id, {
+      metadata: {
+        ...birthday.metadata,
+        customMessage: message,
       }
     });
   };
@@ -168,11 +208,131 @@ export default function EditContactScreen() {
         {/* Personal Message Template */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Personal Message Template</Text>
-          <View style={styles.templateInput}>
-            <Text style={styles.templatePlaceholder}>
-              Leave empty to use global template
-            </Text>
+          
+          {/* Segmented Control */}
+          <View style={styles.templateSegmentedControl}>
+            <TouchableOpacity
+              style={[
+                styles.templateSegment,
+                selectedTemplateType === 'friend' && [
+                  styles.templateSegmentActive,
+                  { 
+                    backgroundColor: RELATIONSHIP_COLORS.friend + '15',
+                    borderColor: RELATIONSHIP_COLORS.friend,
+                  }
+                ]
+              ]}
+              onPress={() => handleTemplateTypeSelect('friend')}
+              activeOpacity={0.7}
+            >
+              <Text style={[
+                styles.templateSegmentText,
+                selectedTemplateType === 'friend' && { color: RELATIONSHIP_COLORS.friend }
+              ]}>Friend</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[
+                styles.templateSegment,
+                selectedTemplateType === 'family' && [
+                  styles.templateSegmentActive,
+                  { 
+                    backgroundColor: RELATIONSHIP_COLORS.family + '15',
+                    borderColor: RELATIONSHIP_COLORS.family,
+                  }
+                ]
+              ]}
+              onPress={() => handleTemplateTypeSelect('family')}
+              activeOpacity={0.7}
+            >
+              <Text style={[
+                styles.templateSegmentText,
+                selectedTemplateType === 'family' && { color: RELATIONSHIP_COLORS.family }
+              ]}>Family</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[
+                styles.templateSegment,
+                selectedTemplateType === 'colleague' && [
+                  styles.templateSegmentActive,
+                  { 
+                    backgroundColor: RELATIONSHIP_COLORS.colleague + '15',
+                    borderColor: RELATIONSHIP_COLORS.colleague,
+                  }
+                ]
+              ]}
+              onPress={() => handleTemplateTypeSelect('colleague')}
+              activeOpacity={0.7}
+            >
+              <Text style={[
+                styles.templateSegmentText,
+                selectedTemplateType === 'colleague' && { color: RELATIONSHIP_COLORS.colleague }
+              ]}>Colleague</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[
+                styles.templateSegment,
+                selectedTemplateType === 'custom' && [
+                  styles.templateSegmentActive,
+                  { 
+                    backgroundColor: CUSTOM_COLOR + '15',
+                    borderColor: CUSTOM_COLOR,
+                  }
+                ]
+              ]}
+              onPress={() => handleTemplateTypeSelect('custom')}
+              activeOpacity={0.7}
+            >
+              <Text style={[
+                styles.templateSegmentText,
+                selectedTemplateType === 'custom' && { color: CUSTOM_COLOR }
+              ]}>Custom</Text>
+            </TouchableOpacity>
           </View>
+          
+          {/* Template Preview */}
+          <View style={[
+            styles.templatePreview,
+            selectedTemplateType !== 'custom' && {
+              backgroundColor: 
+                selectedTemplateType === 'friend' ? RELATIONSHIP_COLORS.friend + '08' :
+                selectedTemplateType === 'family' ? RELATIONSHIP_COLORS.family + '08' :
+                RELATIONSHIP_COLORS.colleague + '08'
+            }
+          ]}>
+            {selectedTemplateType === 'custom' ? (
+              <>
+                <TextInput
+                  style={styles.templateCustomInput}
+                  value={customMessage}
+                  onChangeText={handleCustomMessageChange}
+                  multiline
+                  placeholder={`Write a custom birthday message for ${birthday.name}...`}
+                  placeholderTextColor="#94a3b8"
+                />
+                {customMessage.length > 0 && (
+                  <TouchableOpacity
+                    style={styles.templateResetButton}
+                    onPress={() => handleCustomMessageChange('')}
+                  >
+                    <Text style={styles.templateResetText}>Clear</Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            ) : (
+              <Text style={styles.templatePreviewText}>
+                {templates.find(t => t.id === selectedTemplateType)?.message.replace(/{name}/g, birthday.name)}
+              </Text>
+            )}
+          </View>
+          
+          {selectedTemplateType === 'custom' && customMessage.length > 0 && (
+            <Text style={styles.templateCharCount}>
+              {customMessage.length} characters
+            </Text>
+          )}
         </View>
         
         {/* Birthday Details Section */}
@@ -305,17 +465,67 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     transform: [{ translateX: 20 }],
   },
-  templateInput: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 8,
-    padding: 12,
-    minHeight: 80,
+  templateSegmentedControl: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
   },
-  templatePlaceholder: {
+  templateSegment: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8fafc',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+  },
+  templateSegmentActive: {
+    // Active styles are applied inline with colors
+  },
+  templateSegmentText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#64748b',
+  },
+  templatePreview: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    padding: 16,
+    minHeight: 140,
+    position: 'relative',
+  },
+  templatePreviewText: {
     fontSize: 15,
-    color: '#94a3b8',
+    lineHeight: 22,
+    color: '#1a1d23',
+  },
+  templateCustomInput: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#1a1d23',
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  templateResetButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    backgroundColor: '#e2e8f0',
+    borderRadius: 12,
+  },
+  templateResetText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#64748b',
+  },
+  templateCharCount: {
+    fontSize: 12,
+    color: '#8e8e93',
+    marginTop: 8,
+    textAlign: 'right',
   },
   birthdayContainer: {
     backgroundColor: '#f8fafc',

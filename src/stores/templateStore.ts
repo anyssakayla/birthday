@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { RELATIONSHIP_COLORS } from '@/constants/colors';
 
 export interface MessageTemplate {
   id: string;
@@ -23,7 +24,7 @@ const defaultTemplates: MessageTemplate[] = [
     category: 'friend',
     title: 'Friend',
     icon: '👥',
-    color: '#007AFF',
+    color: RELATIONSHIP_COLORS.friend,
     message: `Happy Birthday, {name}! 🎉
 
 Hope your special day is filled with lots of love, laughter, and all your favorite things. Here's to another year of amazing memories together!
@@ -35,7 +36,7 @@ Cheers to you! 🥳`,
     category: 'family',
     title: 'Family',
     icon: '👨‍👩‍👧',
-    color: '#667EEA',
+    color: RELATIONSHIP_COLORS.family,
     message: `Dear {name}, 🎂
 
 Wishing you a wonderful birthday filled with joy and happiness. May this year bring you good health, success, and countless blessings.
@@ -47,7 +48,7 @@ With love from your family ❤️`,
     category: 'colleague',
     title: 'Colleague',
     icon: '💼',
-    color: '#FF9500',
+    color: RELATIONSHIP_COLORS.colleague,
     message: `Happy Birthday, {name}!
 
 Wishing you a fantastic day and a year ahead filled with success and new opportunities. Hope you enjoy your special day!

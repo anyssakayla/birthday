@@ -29,6 +29,7 @@ export interface BirthdayInput {
   name: string;
   date: string;
   notes?: string;
+  metadata?: Record<string, any>;
 }
 
 // For the sync queue

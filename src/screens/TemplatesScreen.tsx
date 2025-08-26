@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { RootStackParamList } from '@/navigation/AppNavigator';
 import { useTemplateStore, MessageTemplate } from '@/stores/templateStore';
+import { RELATIONSHIP_COLORS } from '@/constants/colors';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Templates'>;
 
@@ -149,19 +150,19 @@ export default function TemplatesScreen() {
               <Text style={styles.variablesSectionTitle}>Available Variables</Text>
               <View style={styles.variablesList}>
                 <TouchableOpacity 
-                  style={styles.variableChip}
+                  style={[styles.variableChip, { backgroundColor: editingTemplate?.color || '#007aff' }]}
                   onPress={() => setEditedMessage(editedMessage + '{name}')}
                 >
                   <Text style={styles.variableText}>{'{name}'}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={styles.variableChip}
+                  style={[styles.variableChip, { backgroundColor: editingTemplate?.color || '#007aff' }]}
                   onPress={() => setEditedMessage(editedMessage + '{age}')}
                 >
                   <Text style={styles.variableText}>{'{age}'}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={styles.variableChip}
+                  style={[styles.variableChip, { backgroundColor: editingTemplate?.color || '#007aff' }]}
                   onPress={() => setEditedMessage(editedMessage + '{relationship}')}
                 >
                   <Text style={styles.variableText}>{'{relationship}'}</Text>
@@ -185,7 +186,7 @@ export default function TemplatesScreen() {
             </View>
 
             <TouchableOpacity 
-              style={styles.previewButton}
+              style={[styles.previewButton, { backgroundColor: editingTemplate?.color || '#007aff' }]}
               onPress={() => setShowPreview(!showPreview)}
             >
               <Text style={styles.previewButtonText}>

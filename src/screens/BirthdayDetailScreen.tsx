@@ -21,6 +21,7 @@ import NotesTab from '@components/tabs/NotesTab';
 import GiftsTab from '@components/tabs/GiftsTab';
 import MessagesTab from '@components/tabs/MessagesTab';
 import { getThemeColor } from '@/utils/themeColors';
+import { RELATIONSHIP_COLORS } from '@/constants/colors';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'BirthdayDetail'>;
 type RoutePropType = RouteProp<RootStackParamList, 'BirthdayDetail'>;
@@ -155,6 +156,20 @@ export default function BirthdayDetailScreen() {
             
             <View style={{ flex: 1 }} />
             
+            {birthday.metadata?.relationship && (
+              <View 
+                style={[
+                  styles.relationshipIndicator,
+                  { 
+                    backgroundColor: 
+                      birthday.metadata.relationship === 'friend' ? RELATIONSHIP_COLORS.friend :
+                      birthday.metadata.relationship === 'family' ? RELATIONSHIP_COLORS.family :
+                      RELATIONSHIP_COLORS.colleague
+                  }
+                ]}
+              />
+            )}
+            
             <TouchableOpacity 
               style={styles.editButton}
               onPress={() => navigation.navigate('EditContact', { birthdayId: birthday.id })}
@@ -262,6 +277,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  relationshipIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
   },
   headerTitle: {
     fontSize: 20,
