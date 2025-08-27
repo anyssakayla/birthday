@@ -1,6 +1,7 @@
 export * from './colors';
 export * from './typography';
 export * from './spacing';
+export * from './types';
 
 import { colors } from './colors';
 import { typography, textStyles } from './typography';

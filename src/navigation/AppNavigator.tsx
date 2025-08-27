@@ -16,6 +16,7 @@ import {
   GiftPlanningScreen,
   TemplatesScreen,
   ManageContactsScreen,
+  DebugScreen,
 } from '@/screens';
 
 // Define navigation param types
@@ -31,6 +32,7 @@ export type RootStackParamList = {
   GiftPlanning: { birthdayId: string };
   Templates: undefined;
   ManageContacts: undefined;
+  Debug: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -142,6 +144,14 @@ export default function AppNavigator() {
           component={ManageContactsScreen}
           options={{
             headerShown: false,
+          }}
+        />
+
+        <Stack.Screen 
+          name="Debug" 
+          component={DebugScreen}
+          options={{
+            title: 'Debug',
           }}
         />
       </Stack.Navigator>

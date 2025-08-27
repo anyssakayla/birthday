@@ -3,6 +3,7 @@ import { Env } from './shared/types/env';
 import { AppError } from './shared/utils/errors';
 import { Logger } from './shared/utils/logger';
 import { AuthController, createAuthMiddleware } from './modules/auth';
+import { BirthdayController } from './modules/birthdays';
 import { SupabaseService } from './shared/database/supabase.client';
 
 // Create router
@@ -132,9 +133,86 @@ router.post('/api/auth/logout', async (request: IRequest, env: Env) => {
   return await authController.logout(request, env);
 });
 
-// TODO: Add birthday routes  
-// router.get('/api/birthdays', ...);
-// router.post('/api/birthdays', ...);
+// Birthday routes
+router.get('/api/birthdays', async (request: IRequest, env: Env) => {
+  const authMiddleware = createAuthMiddleware(env);
+  const birthdayController = new BirthdayController(env);
+  
+  await authMiddleware.required(request);
+  return await birthdayController.list(request, env);
+});
+
+router.get('/api/birthdays/sync', async (request: IRequest, env: Env) => {
+  const authMiddleware = createAuthMiddleware(env);
+  const birthdayController = new BirthdayController(env);
+  
+  await authMiddleware.required(request);
+  return await birthdayController.sync(request, env);
+});
+
+router.get('/api/birthdays/upcoming', async (request: IRequest, env: Env) => {
+  const authMiddleware = createAuthMiddleware(env);
+  const birthdayController = new BirthdayController(env);
+  
+  await authMiddleware.required(request);
+  return await birthdayController.getUpcoming(request, env);
+});
+
+router.get('/api/birthdays/search', async (request: IRequest, env: Env) => {
+  const authMiddleware = createAuthMiddleware(env);
+  const birthdayController = new BirthdayController(env);
+  
+  await authMiddleware.required(request);
+  return await birthdayController.search(request, env);
+});
+
+router.get('/api/birthdays/stats', async (request: IRequest, env: Env) => {
+  const authMiddleware = createAuthMiddleware(env);
+  const birthdayController = new BirthdayController(env);
+  
+  await authMiddleware.required(request);
+  return await birthdayController.getStats(request, env);
+});
+
+router.get('/api/birthdays/:id', async (request: IRequest, env: Env) => {
+  const authMiddleware = createAuthMiddleware(env);
+  const birthdayController = new BirthdayController(env);
+  
+  await authMiddleware.required(request);
+  return await birthdayController.getById(request, env);
+});
+
+router.post('/api/birthdays', async (request: IRequest, env: Env) => {
+  const authMiddleware = createAuthMiddleware(env);
+  const birthdayController = new BirthdayController(env);
+  
+  await authMiddleware.required(request);
+  return await birthdayController.create(request, env);
+});
+
+router.post('/api/birthdays/batch', async (request: IRequest, env: Env) => {
+  const authMiddleware = createAuthMiddleware(env);
+  const birthdayController = new BirthdayController(env);
+  
+  await authMiddleware.required(request);
+  return await birthdayController.batchOperation(request, env);
+});
+
+router.put('/api/birthdays/:id', async (request: IRequest, env: Env) => {
+  const authMiddleware = createAuthMiddleware(env);
+  const birthdayController = new BirthdayController(env);
+  
+  await authMiddleware.required(request);
+  return await birthdayController.update(request, env);
+});
+
+router.delete('/api/birthdays/:id', async (request: IRequest, env: Env) => {
+  const authMiddleware = createAuthMiddleware(env);
+  const birthdayController = new BirthdayController(env);
+  
+  await authMiddleware.required(request);
+  return await birthdayController.delete(request, env);
+});
 
 // 404 handler
 router.all('*', () => {

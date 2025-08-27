@@ -20,7 +20,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { theme } from '@/theme';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { RootStackParamList } from '@/navigation/AppNavigator';
 import { useBirthdayStore } from '@/stores/birthdayStore';
 
@@ -349,11 +350,17 @@ export default function SettingsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const birthdays = useBirthdayStore((state) => state.birthdays);
   
+  // Theme and settings
+  const { theme } = useTheme();
+  const { isDarkMode, toggleDarkMode } = useSettingsStore();
+  
+  // Create theme-aware styles
+  const styles = createStyles(theme);
+  
   // State for toggles
   const [birthdayReminders, setBirthdayReminders] = useState(true);
   const [dealsAndSales, setDealsAndSales] = useState(false);
   const [autoSendMessages, setAutoSendMessages] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   
   // Time picker state
@@ -588,8 +595,8 @@ export default function SettingsScreen() {
           iconBackgroundColor: '#fff0f6',
           iconColor: '#ec4899',
           hasToggle: true,
-          value: darkMode,
-          onToggle: setDarkMode,
+          value: isDarkMode(),
+          onToggle: toggleDarkMode,
         },
       ],
     },
@@ -888,18 +895,19 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+// Create theme-aware styles function
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: theme.colors.background.secondary,
   },
   scrollContainer: {
     flex: 1,
   },
   header: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.background.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.04)',
+    borderBottomColor: theme.colors.border.light,
   },
   headerTop: {
     flexDirection: 'row',
@@ -917,12 +925,12 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 24,
-    color: '#007aff',
+    color: theme.colors.primary.main,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1c1c1e',
+    color: theme.colors.text.primary,
     flex: 1,
     textAlign: 'center',
     marginRight: 40,
@@ -948,17 +956,17 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1c1c1e',
+    color: theme.colors.text.primary,
   },
   profilePhone: {
     fontSize: 16,
-    color: '#8e8e93',
+    color: theme.colors.text.secondary,
   },
   editProfileButton: {
     marginTop: 8,
     paddingVertical: 8,
     paddingHorizontal: 20,
-    backgroundColor: '#007aff',
+    backgroundColor: theme.colors.primary.main,
     borderRadius: 20,
   },
   editProfileText: {
@@ -972,7 +980,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.04)',
+    borderTopColor: theme.colors.border.light,
   },
   statItem: {
     alignItems: 'center',
@@ -980,11 +988,11 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#007aff',
+    color: theme.colors.primary.main,
   },
   statLabel: {
     fontSize: 13,
-    color: '#8e8e93',
+    color: theme.colors.text.tertiary,
     marginTop: 4,
   },
   settingsContainer: {
@@ -996,21 +1004,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8e8e93',
+    color: theme.colors.text.tertiary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 8,
     paddingLeft: 16,
   },
   settingsCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.background.surface,
     borderRadius: 12,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 3,
-    elevation: 2,
+    ...theme.shadows.small,
   },
   settingItem: {
     flexDirection: 'row',
@@ -1018,7 +1022,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.04)',
+    borderBottomColor: theme.colors.border.light,
   },
   settingItemLeft: {
     flexDirection: 'row',
@@ -1047,11 +1051,11 @@ const styles = StyleSheet.create({
   settingItemTitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#1c1c1e',
+    color: theme.colors.text.primary,
   },
   settingItemSubtitle: {
     fontSize: 13,
-    color: '#8e8e93',
+    color: theme.colors.text.secondary,
     marginTop: 2,
   },
   proBadge: {
@@ -1149,20 +1153,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderBottomColor: theme.colors.border.light,
   },
   modalCancel: {
     fontSize: 17,
-    color: '#007aff',
+    color: theme.colors.primary.main,
   },
   modalTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1c1c1e',
+    color: theme.colors.text.primary,
   },
   modalDone: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#007aff',
+    color: theme.colors.primary.main,
   },
 });
