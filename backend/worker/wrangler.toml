@@ -1,0 +1,29 @@
+name = "birthday-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Development settings
+[dev]
+port = 8787
+local_protocol = "http"
+
+# Environment variables (non-secret)
+[vars]
+ENVIRONMENT = "development"
+CORS_ORIGIN = "http://localhost:8081"
+
+# For production, you'll add:
+# [[r2_buckets]]
+# binding = "IMAGES"
+# bucket_name = "birthday-images-dev"
+
+# [[kv_namespaces]]
+# binding = "RATE_LIMIT"
+# id = "your-kv-namespace-id"
+
+# Secrets to set via CLI after creating CloudFlare account:
+# wrangler secret put SUPABASE_URL
+# wrangler secret put SUPABASE_ANON_KEY
+# wrangler secret put SUPABASE_SERVICE_KEY
+# wrangler secret put JWT_SECRET
+# wrangler secret put OPENAI_API_KEY

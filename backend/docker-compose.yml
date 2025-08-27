@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Supabase services for local development
+  postgres:
+    image: supabase/postgres:15.1.0.117
+    container_name: birthday-postgres
+    ports:
+      - "54322:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - birthday-network
+
+  supabase-studio:
+    image: supabase/studio:latest
+    container_name: birthday-studio
+    ports:
+      - "54323:3000"
+    environment:
+      STUDIO_PG_META_URL: http://postgres-meta:8080
+      POSTGRES_PASSWORD: postgres
+      DEFAULT_ORGANIZATION: Birthday App
+      DEFAULT_PROJECT: Birthday App Local
+    depends_on:
+      - postgres
+    networks:
+      - birthday-network
+
+  postgres-meta:
+    image: supabase/postgres-meta:v0.68.0
+    container_name: birthday-postgres-meta
+    ports:
+      - "8080:8080"
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: postgres
+      PG_META_DB_PASSWORD: postgres
+    depends_on:
+      - postgres
+    networks:
+      - birthday-network
+
+volumes:
+  postgres_data:
+
+networks:
+  birthday-network:
+    driver: bridge

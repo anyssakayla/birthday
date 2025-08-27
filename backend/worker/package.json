@@ -1,0 +1,25 @@
+{
+  "name": "birthday-api-worker",
+  "version": "1.0.0",
+  "description": "CloudFlare Worker backend for Birthday Reminder App",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "tail": "wrangler tail",
+    "cf-typegen": "wrangler types"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "itty-router": "^4.0.23",
+    "nanoid": "^5.0.4",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.22.1"
+  }
+}
